@@ -36,3 +36,16 @@ jobs:
         run: |
           docker push ghcr.io/hyun326/lion_first-backend:${{ github.sha }}
           docker push ghcr.io/hyun326/lion_first-backend:latest
+
+      - name: Build frontend image
+        run: |
+          docker build \
+            -t ghcr.io/hyun326/lion_first-frontend:${{ github.sha }} \
+            -t ghcr.io/hyun326/lion_first-frontend:latest \
+            -f paprika/frontend/Dockerfile \
+            paprika/frontend
+
+      - name: Push frontend image
+        run: |
+          docker push ghcr.io/hyun326/lion_first-frontend:${{ github.sha }}
+          docker push ghcr.io/hyun326/lion_first-frontend:latest
