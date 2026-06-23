@@ -42,9 +42,9 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(DataIntegrityViolationException.class)
     public ResponseEntity<ApiResponse<Void>> handleDataIntegrityViolation(DataIntegrityViolationException e) {
-        log.error("DataIntegrityViolationException (DB 제약 위반 - 마이그레이션 미적용 가능성)", e);
+        log.error("DataIntegrityViolationException (중복 거래 또는 DB 제약 위반 - 마이그레이션 미적용 가능성)", e);
         return ResponseEntity.status(HttpStatus.CONFLICT)
-                .body(ApiResponse.fail("데이터 제약 조건 위반입니다. DB 마이그레이션(상태값 CHECK 제약) 적용 여부를 확인하세요."));
+                .body(ApiResponse.fail("이미 진행 중인 거래가 있거나 데이터 제약 조건에 위배됩니다."));
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)

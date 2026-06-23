@@ -1,12 +1,12 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { createTransaction } from '@/lib/transactionApi';
+import { createTransaction, getMyTransactions } from '@/lib/transactionApi';
 import { getApiErrorMessage } from '@/lib/apiError';
 import { getSampleProductById } from '@/lib/sampleProducts';
-import type { PaymentMethod, TransactionType } from '@/types/transaction';
+import type { PaymentMethod, TransactionResponse, TransactionType } from '@/types/transaction';
 import { FEE_RATE, calculateFee, calculateTotalWithFee } from '@/types/transaction';
 import styles from './page.module.css';
 
@@ -24,6 +24,38 @@ export default function TransactionPage({
   const [taxEmail, setTaxEmail] = useState('');
   const [loadingType, setLoadingType] = useState<TransactionType | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [myTransaction, setMyTransaction] = useState<TransactionResponse | null>(null);
+  const [checking, setChecking] = useState(true);
+
+  useEffect(() => {
+    if (!product) {
+      setChecking(false);
+      return;
+    }
+    let cancelled = false;
+
+    getMyTransactions()
+      .then((list) => {
+        if (cancelled) return;
+        const active = list.find(
+          (t) =>
+            t.productId === product.id &&
+            t.status !== 'COMPLETED' &&
+            t.status !== 'CANCELLED'
+        );
+        setMyTransaction(active ?? null);
+      })
+      .catch(() => {
+        // 조회 실패 시 신청 화면 노출 (백엔드에서 최종 검증됨)
+      })
+      .finally(() => {
+        if (!cancelled) setChecking(false);
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [product]);
 
   const handlePaymentMethodChange = (method: PaymentMethod) => {
     setPaymentMethod(method);
@@ -85,6 +117,50 @@ export default function TransactionPage({
         <p className={styles.subtitle}>상품을 찾을 수 없습니다.</p>
         <Link href="/" className={styles.backLink}>
           홈으로 돌아가기
+        </Link>
+      </main>
+    );
+  }
+
+  if (checking) {
+    return (
+      <main className={styles.page}>
+        <p className={styles.subtitle}>거래 가능 여부를 확인하는 중...</p>
+      </main>
+    );
+  }
+
+  if (myTransaction) {
+    return (
+      <main className={styles.page}>
+        <h1 className={styles.title}>거래 신청</h1>
+        <p className={styles.subtitle}>이미 진행 중인 거래가 있습니다.</p>
+        <Link href={`/transactions/${myTransaction.id}`} className={styles.backLink}>
+          진행 중인 거래 보기 →
+        </Link>
+      </main>
+    );
+  }
+
+  if (product.status === 'SOLD') {
+    return (
+      <main className={styles.page}>
+        <h1 className={styles.title}>거래 신청</h1>
+        <p className={styles.subtitle}>이미 판매 완료된 상품입니다.</p>
+        <Link href={`/products/${product.id}`} className={styles.backLink}>
+          ← 상품으로 돌아가기
+        </Link>
+      </main>
+    );
+  }
+
+  if (product.status === 'RESERVED') {
+    return (
+      <main className={styles.page}>
+        <h1 className={styles.title}>거래 신청</h1>
+        <p className={styles.subtitle}>현재 예약 중인 상품이라 거래를 신청할 수 없습니다.</p>
+        <Link href={`/products/${product.id}`} className={styles.backLink}>
+          ← 상품으로 돌아가기
         </Link>
       </main>
     );

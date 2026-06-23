@@ -27,6 +27,7 @@ public enum ErrorCode {
     TRANSACTION_NOT_FOUND(HttpStatus.NOT_FOUND, "거래를 찾을 수 없습니다."),
     TRANSACTION_ACCESS_DENIED(HttpStatus.FORBIDDEN, "거래에 대한 권한이 없습니다."),
     INVALID_TRANSACTION_STATUS(HttpStatus.BAD_REQUEST, "유효하지 않은 거래 상태입니다."),
+    DUPLICATE_TRANSACTION(HttpStatus.CONFLICT, "이미 진행 중인 거래가 있습니다."),
     CONCURRENT_TRANSACTION_MODIFICATION(HttpStatus.CONFLICT, "다른 사용자가 먼저 거래를 수정했습니다. 다시 시도해주세요."),
 
     // Common

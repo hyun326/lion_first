@@ -70,7 +70,8 @@ public class TransactionService {
                 );
                 return TransactionResponse.from(transaction, buyerId);
             }
-            throw new PaprikaException(ErrorCode.INVALID_TRANSACTION_STATUS);
+            // 같은 상품에 이미 진행 중인(완료·취소 외) 거래가 존재하면 중복 신청 차단
+            throw new PaprikaException(ErrorCode.DUPLICATE_TRANSACTION);
         }
 
         Transaction transaction = Transaction.create(
