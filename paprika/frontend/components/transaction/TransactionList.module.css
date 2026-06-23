@@ -1,0 +1,65 @@
+.list {
+  display: grid;
+  gap: 12px;
+}
+
+.card {
+  display: block;
+  padding: 18px;
+  border-radius: 18px;
+  background: var(--color-surface-container-lowest);
+  box-shadow: var(--shadow-card);
+  text-decoration: none;
+  color: inherit;
+  transition: transform 0.15s ease;
+}
+
+.card:hover {
+  transform: translateY(-1px);
+}
+
+.cardHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.badges {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.amount {
+  font-size: 18px;
+  font-weight: 800;
+  color: var(--color-primary);
+}
+
+.meta {
+  display: grid;
+  gap: 6px;
+  font-size: 14px;
+  color: var(--color-on-surface-variant);
+}
+
+.empty,
+.error,
+.loading {
+  padding: 48px 24px;
+  text-align: center;
+  border-radius: 18px;
+  background: var(--color-surface-container-lowest);
+  color: var(--color-on-surface-variant);
+}
+
+.error {
+  color: var(--color-on-error-container);
+  background: var(--color-error-container);
+}
+
+.loading {
+  color: var(--color-on-surface);
+}

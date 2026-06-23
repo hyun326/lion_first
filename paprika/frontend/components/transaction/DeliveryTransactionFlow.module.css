@@ -1,0 +1,256 @@
+.stepBar {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 24px;
+}
+
+.step {
+  flex: 1;
+  padding: 10px 8px;
+  border-radius: 12px;
+  background: var(--color-surface-container);
+  color: var(--color-on-surface-variant);
+  font-size: 12px;
+  font-weight: 600;
+  text-align: center;
+}
+
+.stepActive {
+  background: var(--color-primary-fixed);
+  color: var(--color-primary);
+}
+
+.stepDone {
+  background: var(--color-secondary-container);
+  color: var(--color-secondary);
+}
+
+.page {
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 24px;
+  display: grid;
+  gap: 16px;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.title {
+  margin: 0;
+  font-size: 26px;
+  font-weight: 800;
+}
+
+.backLink {
+  color: var(--color-primary);
+  text-decoration: none;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.card {
+  background: var(--color-surface-container-lowest);
+  border-radius: 24px;
+  padding: 24px;
+  box-shadow: var(--shadow-card);
+}
+
+.cardTitle {
+  margin: 0 0 8px;
+  font-size: 18px;
+  font-weight: 700;
+}
+
+.cardDesc {
+  margin: 0 0 20px;
+  font-size: 14px;
+  color: var(--color-on-surface-variant);
+  line-height: 1.6;
+}
+
+.badges {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-bottom: 16px;
+}
+
+.infoBox {
+  display: grid;
+  gap: 8px;
+  margin-bottom: 16px;
+  padding: 16px;
+  border-radius: 16px;
+  background: var(--color-surface-container-low);
+  font-size: 14px;
+}
+
+.notice {
+  padding: 14px 16px;
+  border-radius: 14px;
+  background: var(--color-secondary-container);
+  color: var(--color-on-secondary-container);
+  font-size: 14px;
+  margin-bottom: 16px;
+}
+
+.successNotice {
+  padding: 14px 16px;
+  border-radius: 14px;
+  background: var(--color-primary-fixed);
+  color: var(--color-primary);
+  font-size: 14px;
+  font-weight: 700;
+  margin-bottom: 16px;
+}
+
+.error {
+  padding: 14px 16px;
+  border-radius: 14px;
+  background: var(--color-error-container);
+  color: var(--color-on-error-container);
+  font-size: 14px;
+  margin-bottom: 16px;
+}
+
+.timeline {
+  display: grid;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.timelineItem {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 14px;
+  border-radius: 14px;
+  background: var(--color-surface-container-low);
+  font-size: 14px;
+}
+
+.timelineContent {
+  flex: 1;
+  display: grid;
+  gap: 2px;
+}
+
+.timelineLabel {
+  font-weight: 700;
+}
+
+.timelineLocation {
+  font-size: 12px;
+  color: var(--color-on-surface-variant);
+}
+
+.nowBadge {
+  padding: 4px 8px;
+  border-radius: 999px;
+  background: var(--color-primary);
+  color: var(--color-on-primary);
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.currentStatus {
+  display: grid;
+  gap: 4px;
+  margin-bottom: 20px;
+  padding: 18px;
+  border-radius: 16px;
+  background: var(--color-primary-fixed);
+}
+
+.currentLabel {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--color-on-surface-variant);
+}
+
+.currentValue {
+  font-size: 18px;
+  color: var(--color-primary);
+}
+
+.currentStep {
+  font-size: 13px;
+  color: var(--color-on-surface-variant);
+}
+
+.timelineItemCurrent {
+  border: 1px solid var(--color-primary);
+  background: var(--color-primary-fixed);
+}
+
+.timelineItemDone {
+  opacity: 0.85;
+}
+
+.dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--color-outline);
+  flex-shrink: 0;
+}
+
+.dotCurrent {
+  background: var(--color-primary);
+}
+
+.dotDone {
+  background: var(--color-secondary);
+}
+
+.actionBtn {
+  width: 100%;
+  padding: 14px 16px;
+  margin-top: 8px;
+  border: none;
+  border-radius: 14px;
+  background: var(--color-primary);
+  color: var(--color-on-primary);
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.actionBtnSecondary {
+  width: 100%;
+  padding: 14px 16px;
+  margin-top: 8px;
+  border: 1px solid var(--color-outline-variant);
+  border-radius: 14px;
+  background: var(--color-surface-container);
+  color: var(--color-on-surface);
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.actionBtn:disabled,
+.actionBtnSecondary:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.loading,
+.errorPage {
+  padding: 48px 24px;
+  text-align: center;
+}
+
+@media (max-width: 640px) {
+  .page {
+    padding: 16px;
+  }
+
+  .stepBar {
+    flex-direction: column;
+  }
+}

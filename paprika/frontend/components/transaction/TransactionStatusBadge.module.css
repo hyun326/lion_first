@@ -1,0 +1,47 @@
+.badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 10px;
+  border-radius: 9999px;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.type {
+  background: var(--color-primary-fixed);
+  color: var(--color-primary);
+}
+
+.delivery {
+  background: var(--color-tertiary-fixed);
+  color: var(--color-tertiary);
+}
+
+.default,
+.requested {
+  background: var(--color-surface-container-high);
+  color: var(--color-on-surface-variant);
+}
+
+.meeting_set,
+.preparing {
+  background: var(--color-secondary-container);
+  color: var(--color-secondary);
+}
+
+.meeting_completed,
+.shipped,
+.in_transit {
+  background: var(--color-tertiary-fixed);
+  color: var(--color-tertiary);
+}
+
+.delivered {
+  background: #e8f5e9;
+  color: #2e7d32;
+}
+
+.completed {
+  background: var(--color-primary-fixed);
+  color: var(--color-primary);
+}

@@ -1,0 +1,27 @@
+.page {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 24px;
+}
+
+.header {
+  margin-bottom: 20px;
+}
+
+.title {
+  margin: 0 0 8px;
+  font-size: 28px;
+  font-weight: 800;
+}
+
+.subtitle {
+  margin: 0;
+  color: var(--color-on-surface-variant);
+  font-size: 14px;
+}
+
+@media (max-width: 640px) {
+  .page {
+    padding: 16px;
+  }
+}

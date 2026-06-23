@@ -1,0 +1,87 @@
+.card {
+  border: 1px solid var(--color-outline-variant);
+  border-radius: 16px;
+  padding: 20px;
+  background: var(--color-surface-container-lowest);
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.title {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 700;
+}
+
+.badgeIssued,
+.badgePending {
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.badgeIssued {
+  background: #e8f5e9;
+  color: #2e7d32;
+}
+
+.badgePending {
+  background: #fff3e0;
+  color: #ef6c00;
+}
+
+.grid {
+  display: grid;
+  gap: 10px;
+  margin-bottom: 16px;
+}
+
+.row {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  font-size: 14px;
+}
+
+.label {
+  color: var(--color-on-surface-variant);
+  flex-shrink: 0;
+}
+
+.value {
+  text-align: right;
+  word-break: break-all;
+}
+
+.amountBox {
+  border-top: 1px dashed var(--color-outline-variant);
+  padding-top: 16px;
+  display: grid;
+  gap: 8px;
+}
+
+.amountRow {
+  display: flex;
+  justify-content: space-between;
+  font-size: 14px;
+}
+
+.total {
+  margin-top: 4px;
+  padding-top: 8px;
+  border-top: 1px solid var(--color-outline-variant);
+  font-size: 16px;
+}
+
+.notice {
+  margin: 16px 0 0;
+  font-size: 13px;
+  color: var(--color-on-surface-variant);
+}

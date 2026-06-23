@@ -1,0 +1,13 @@
+.badge {
+  display: inline-block;
+  padding: 4px 10px;
+  border-radius: var(--radius-full);
+  font-family: var(--font-display);
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.selling  { background: #fff3ee; color: var(--color-primary); }
+.reserved { background: #e8f0fe; color: var(--color-tertiary); }
+.sold     { background: var(--color-surface-container-high); color: var(--color-on-surface-variant); }
+.draft    { background: var(--color-surface-container); color: var(--color-on-surface-variant); }
