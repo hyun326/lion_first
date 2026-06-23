@@ -8,7 +8,7 @@ spring:
   datasource:
     url: jdbc:postgresql://${DB_HOST:localhost}:5432/likelion?sslmode=require
     username: ${DB_USERNAME:root}
-    password: ${DB_PASSWORD:}
+    password: ${DB_PASSWORD:fq8NHRNjR5QWyu32W7gohszF}
     driver-class-name: org.postgresql.Driver
 
   jpa:

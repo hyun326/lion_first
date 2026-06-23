@@ -1,7 +1,24 @@
 package com.paprika.domain.transaction.entity;
 
-import jakarta.persistence.*;
-import lombok.*;
+import com.paprika.domain.transaction.TaxInvoiceCalculator;
+import com.paprika.domain.transaction.enums.DeliveryStatus;
+import com.paprika.domain.transaction.enums.PaymentMethod;
+import com.paprika.domain.transaction.enums.TaxInvoiceStatus;
+import com.paprika.domain.transaction.enums.TransactionStatus;
+import com.paprika.domain.transaction.enums.TransactionType;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EntityListeners;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
+import jakarta.persistence.Version;
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
@@ -13,11 +30,7 @@ import java.time.LocalDateTime;
  * 거래 엔티티
  * 담당: D - 이동준
  *
- * TODO:
- *  - Product, User 연관 관계 추가
- *  - 직거래 vs 택배 분기 로직
- *  - 거래 완료 후 리뷰 연동 (E - 장인호와 협의)
- *  - 세금계산서 발행 로직
+ * user, product 도메인과 JPA 연관관계 없이 ID만 저장합니다.
  */
 @Entity
 @Table(name = "transactions")
@@ -30,49 +43,284 @@ public class Transaction {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private Long productId;  // TODO: Product와 @ManyToOne
+    @Version
+    @Column(nullable = false)
+    private Long version;
 
-    private Long buyerId;    // TODO: User와 @ManyToOne
+    @Column(nullable = false)
+    private Long productId;
 
-    private Long sellerId;   // TODO: User와 @ManyToOne
+    @Column(nullable = false)
+    private Long buyerId;
+
+    @Column(nullable = false)
+    private Long sellerId;
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
-    private TransactionType type; // DIRECT, DELIVERY
+    @Column(name = "type", nullable = false, length = 20)
+    private TransactionType transactionType;
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
+    @Column(nullable = false, length = 30)
     private TransactionStatus status;
 
+    @Column(nullable = false, precision = 19, scale = 2)
     private BigDecimal amount;
 
-    // 직거래용
-    private String meetingLocation;
+    @Enumerated(EnumType.STRING)
+    @Column(length = 10)
+    private PaymentMethod paymentMethod;
 
-    private Double meetingLatitude;
+    @Enumerated(EnumType.STRING)
+    @Column(length = 20)
+    private TaxInvoiceStatus taxInvoiceStatus;
 
-    private Double meetingLongitude;
+    private String taxInvoiceCompanyName;
+    private String taxInvoiceBusinessNumber;
+    private String taxInvoiceEmail;
+    private String taxInvoiceNumber;
+    private LocalDateTime taxInvoiceIssuedAt;
+    private BigDecimal taxInvoiceSupplyAmount;
+    private BigDecimal taxInvoiceVatAmount;
 
-    private LocalDateTime meetingTime;
+    // 직거래 정보
+    @Column(name = "meeting_location")
+    private String meetingPlaceName;
+    private String meetingAddress;
+    @Column(name = "meeting_latitude")
+    private Double latitude;
+    @Column(name = "meeting_longitude")
+    private Double longitude;
+    @Column(name = "meeting_time")
+    private LocalDateTime meetingAt;
 
-    // 택배용
+    @Column(nullable = false)
+    private boolean buyerCompleteConfirmed;
+
+    @Column(nullable = false)
+    private boolean sellerCompleteConfirmed;
+
+    // 택배 정보
+    private String courierCompany;
     private String trackingNumber;
 
-    private String deliveryStatus;
+    @Enumerated(EnumType.STRING)
+    @Column(length = 20)
+    private DeliveryStatus deliveryStatus;
 
     @CreatedDate
+    @Column(updatable = false)
     private LocalDateTime createdAt;
 
     @LastModifiedDate
     private LocalDateTime updatedAt;
 
-    public enum TransactionType { DIRECT, DELIVERY }
+    public void reviseRequestedTransaction(
+            TransactionType transactionType,
+            BigDecimal amount,
+            PaymentMethod paymentMethod,
+            boolean taxInvoiceRequested,
+            String taxInvoiceCompanyName,
+            String taxInvoiceBusinessNumber,
+            String taxInvoiceEmail
+    ) {
+        if (status != TransactionStatus.REQUESTED) {
+            throw new IllegalStateException("거래 요청 상태에서만 수정할 수 있습니다.");
+        }
+        this.transactionType = transactionType;
+        this.amount = amount;
+        applyPaymentAndTaxInvoice(
+                paymentMethod,
+                taxInvoiceRequested,
+                taxInvoiceCompanyName,
+                taxInvoiceBusinessNumber,
+                taxInvoiceEmail,
+                amount
+        );
+    }
 
-    public enum TransactionStatus {
-        PENDING,       // 거래 요청
-        AGREED,        // 거래 확정
-        IN_TRANSIT,    // 배송 중 (택배)
-        COMPLETED,     // 거래 완료
-        CANCELLED      // 거래 취소
+    public static Transaction create(
+            Long productId,
+            Long buyerId,
+            Long sellerId,
+            TransactionType transactionType,
+            BigDecimal amount,
+            PaymentMethod paymentMethod,
+            boolean taxInvoiceRequested,
+            String taxInvoiceCompanyName,
+            String taxInvoiceBusinessNumber,
+            String taxInvoiceEmail
+    ) {
+        Transaction transaction = new Transaction();
+        transaction.productId = productId;
+        transaction.buyerId = buyerId;
+        transaction.sellerId = sellerId;
+        transaction.transactionType = transactionType;
+        transaction.amount = amount;
+        transaction.status = TransactionStatus.REQUESTED;
+        transaction.buyerCompleteConfirmed = false;
+        transaction.sellerCompleteConfirmed = false;
+        transaction.applyPaymentAndTaxInvoice(
+                paymentMethod,
+                taxInvoiceRequested,
+                taxInvoiceCompanyName,
+                taxInvoiceBusinessNumber,
+                taxInvoiceEmail,
+                amount
+        );
+        return transaction;
+    }
+
+    private void applyPaymentAndTaxInvoice(
+            PaymentMethod paymentMethod,
+            boolean taxInvoiceRequested,
+            String taxInvoiceCompanyName,
+            String taxInvoiceBusinessNumber,
+            String taxInvoiceEmail,
+            BigDecimal totalAmount
+    ) {
+        this.paymentMethod = paymentMethod;
+        if (!taxInvoiceRequested) {
+            this.taxInvoiceStatus = TaxInvoiceStatus.NOT_REQUESTED;
+            this.taxInvoiceCompanyName = null;
+            this.taxInvoiceBusinessNumber = null;
+            this.taxInvoiceEmail = null;
+            this.taxInvoiceSupplyAmount = null;
+            this.taxInvoiceVatAmount = null;
+            return;
+        }
+
+        this.taxInvoiceStatus = TaxInvoiceStatus.REQUESTED;
+        this.taxInvoiceCompanyName = taxInvoiceCompanyName;
+        this.taxInvoiceBusinessNumber = taxInvoiceBusinessNumber;
+        this.taxInvoiceEmail = taxInvoiceEmail;
+        TaxInvoiceCalculator.Amounts amounts = TaxInvoiceCalculator.splitFromTotal(totalAmount);
+        this.taxInvoiceSupplyAmount = amounts.supplyAmount();
+        this.taxInvoiceVatAmount = amounts.vatAmount();
+    }
+
+    public void issueTaxInvoiceIfRequested() {
+        if (taxInvoiceStatus != TaxInvoiceStatus.REQUESTED || id == null) {
+            return;
+        }
+        this.taxInvoiceNumber = "TI-" + id + "-" + LocalDateTime.now().format(
+                java.time.format.DateTimeFormatter.ofPattern("yyyyMMdd")
+        );
+        this.taxInvoiceIssuedAt = LocalDateTime.now();
+        this.taxInvoiceStatus = TaxInvoiceStatus.ISSUED;
+        TaxInvoiceCalculator.Amounts amounts = TaxInvoiceCalculator.splitFromTotal(amount);
+        this.taxInvoiceSupplyAmount = amounts.supplyAmount();
+        this.taxInvoiceVatAmount = amounts.vatAmount();
+    }
+
+    private void finalizeCompletion() {
+        if (status == TransactionStatus.COMPLETED) {
+            issueTaxInvoiceIfRequested();
+        }
+    }
+
+    public boolean isDirect() {
+        return transactionType == TransactionType.DIRECT;
+    }
+
+    public boolean isDelivery() {
+        return transactionType == TransactionType.DELIVERY;
+    }
+
+    public boolean isCompleted() {
+        return status == TransactionStatus.COMPLETED;
+    }
+
+    public boolean isParticipant(Long userId) {
+        return buyerId.equals(userId) || sellerId.equals(userId);
+    }
+
+    public boolean isBuyer(Long userId) {
+        return buyerId.equals(userId);
+    }
+
+    public boolean isSeller(Long userId) {
+        return sellerId.equals(userId);
+    }
+
+    public Long getCounterpartId(Long userId) {
+        if (buyerId.equals(userId)) {
+            return sellerId;
+        }
+        if (sellerId.equals(userId)) {
+            return buyerId;
+        }
+        return null;
+    }
+
+    public boolean hasTrackingNumber() {
+        return trackingNumber != null && !trackingNumber.isBlank();
+    }
+
+    public void setDirectMeeting(
+            String meetingPlaceName,
+            String meetingAddress,
+            Double latitude,
+            Double longitude,
+            LocalDateTime meetingAt
+    ) {
+        this.meetingPlaceName = meetingPlaceName;
+        this.meetingAddress = meetingAddress;
+        this.latitude = latitude;
+        this.longitude = longitude;
+        this.meetingAt = meetingAt;
+        this.status = TransactionStatus.MEETING_SET;
+    }
+
+    public void confirmDirectComplete(Long userId) {
+        if (isBuyer(userId)) {
+            if (buyerCompleteConfirmed) {
+                throw new IllegalStateException("구매자가 이미 완료 확인했습니다.");
+            }
+            buyerCompleteConfirmed = true;
+        } else if (isSeller(userId)) {
+            if (sellerCompleteConfirmed) {
+                throw new IllegalStateException("판매자가 이미 완료 확인했습니다.");
+            }
+            sellerCompleteConfirmed = true;
+        } else {
+            throw new IllegalStateException("거래 참여자가 아닙니다.");
+        }
+
+        if (buyerCompleteConfirmed && sellerCompleteConfirmed) {
+            status = TransactionStatus.COMPLETED;
+            finalizeCompletion();
+        } else if (status == TransactionStatus.MEETING_SET) {
+            status = TransactionStatus.MEETING_COMPLETED;
+        }
+    }
+
+    public void updateDeliveryInvoice(String courierCompany, String trackingNumber) {
+        this.courierCompany = courierCompany;
+        this.trackingNumber = trackingNumber;
+    }
+
+    public void changeDeliveryStatus(DeliveryStatus nextDeliveryStatus) {
+        this.deliveryStatus = nextDeliveryStatus;
+        this.status = TransactionStatus.valueOf(nextDeliveryStatus.name());
+    }
+
+    /**
+     * 개발/테스트용: IN_TRANSIT -> DELIVERED (택배사 API 연동 전)
+     */
+    public void markDeliveryDelivered() {
+        if (status != TransactionStatus.IN_TRANSIT || deliveryStatus != DeliveryStatus.IN_TRANSIT) {
+            throw new IllegalStateException("배송 중 상태에서만 배송 완료 처리할 수 있습니다.");
+        }
+        this.deliveryStatus = DeliveryStatus.DELIVERED;
+        this.status = TransactionStatus.DELIVERED;
+    }
+
+    public void confirmDeliveryReceive() {
+        if (deliveryStatus != DeliveryStatus.DELIVERED || status != TransactionStatus.DELIVERED) {
+            throw new IllegalStateException("배송 완료 상태에서만 수령 확인할 수 있습니다.");
+        }
+        this.status = TransactionStatus.COMPLETED;
+        finalizeCompletion();
     }
 }
