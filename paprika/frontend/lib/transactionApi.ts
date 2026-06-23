@@ -57,6 +57,27 @@ export async function confirmDirectComplete(transactionId: number): Promise<Tran
   return unwrap(data);
 }
 
+export async function acceptDirectMeeting(transactionId: number): Promise<TransactionResponse> {
+  const { data } = await api.patch<ApiResponse<TransactionResponse>>(
+    `/api/transactions/${transactionId}/direct-meeting/accept`
+  );
+  return unwrap(data);
+}
+
+export async function rejectDirectMeeting(transactionId: number): Promise<TransactionResponse> {
+  const { data } = await api.patch<ApiResponse<TransactionResponse>>(
+    `/api/transactions/${transactionId}/direct-meeting/reject`
+  );
+  return unwrap(data);
+}
+
+export async function cancelTransaction(transactionId: number): Promise<TransactionResponse> {
+  const { data } = await api.patch<ApiResponse<TransactionResponse>>(
+    `/api/transactions/${transactionId}/cancel`
+  );
+  return unwrap(data);
+}
+
 export async function updateDeliveryInvoice(
   transactionId: number,
   payload: DeliveryInvoicePayload

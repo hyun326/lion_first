@@ -1,5 +1,7 @@
 package com.paprika.domain.transaction.service;
 
+import com.paprika.domain.product.entity.Product;
+import com.paprika.domain.product.repository.ProductRepository;
 import com.paprika.domain.transaction.dto.DeliveryInvoiceRequest;
 import com.paprika.domain.transaction.entity.Transaction;
 import com.paprika.domain.transaction.repository.TransactionRepository;
@@ -37,6 +39,7 @@ public class TransactionService {
     );
 
     private final TransactionRepository transactionRepository;
+    private final ProductRepository productRepository;
     private final CurrentUserProvider currentUserProvider;
 
     @Transactional
@@ -49,9 +52,9 @@ public class TransactionService {
 
         boolean taxInvoiceRequested = isTaxInvoiceRequested(request);
 
-        Optional<Transaction> existingTransaction = transactionRepository.findFirstByProductIdAndStatusNotOrderByCreatedAtDesc(
+        Optional<Transaction> existingTransaction = transactionRepository.findFirstByProductIdAndStatusNotInOrderByCreatedAtDesc(
                 request.getProductId(),
-                TransactionStatus.COMPLETED
+                EnumSet.of(TransactionStatus.COMPLETED, TransactionStatus.CANCELLED)
         );
         if (existingTransaction.isPresent()) {
             Transaction transaction = existingTransaction.get();
@@ -114,15 +117,18 @@ public class TransactionService {
         Long currentUserId = currentUserProvider.getCurrentUserId();
         Transaction transaction = findTransactionWithAccess(transactionId, currentUserId);
 
-        validateNotCompleted(transaction);
+        validateActive(transaction);
         validateDirectTransaction(transaction);
         validateSellerOnly(transaction, currentUserId);
 
-        if (transaction.getStatus() != TransactionStatus.REQUESTED && transaction.getStatus() != TransactionStatus.MEETING_SET) {
+        TransactionStatus status = transaction.getStatus();
+        if (status != TransactionStatus.REQUESTED
+                && status != TransactionStatus.MEETING_PROPOSED
+                && status != TransactionStatus.MEETING_SET) {
             throw new PaprikaException(ErrorCode.INVALID_TRANSACTION_STATUS);
         }
 
-        transaction.setDirectMeeting(
+        transaction.proposeDirectMeeting(
                 request.getMeetingPlaceName(),
                 request.getMeetingAddress(),
                 request.getLatitude(),
@@ -134,11 +140,71 @@ public class TransactionService {
     }
 
     @Transactional
+    public TransactionResponse acceptDirectMeeting(Long transactionId) {
+        Long currentUserId = currentUserProvider.getCurrentUserId();
+        Transaction transaction = findTransactionWithAccess(transactionId, currentUserId);
+
+        validateActive(transaction);
+        validateDirectTransaction(transaction);
+
+        if (!transaction.isBuyer(currentUserId)) {
+            throw new PaprikaException(ErrorCode.TRANSACTION_ACCESS_DENIED);
+        }
+
+        try {
+            transaction.acceptDirectMeeting(currentUserId);
+        } catch (IllegalStateException e) {
+            throw new PaprikaException(ErrorCode.INVALID_TRANSACTION_STATUS);
+        }
+
+        reserveProduct(transaction);
+
+        return TransactionResponse.from(transaction, currentUserId);
+    }
+
+    @Transactional
+    public TransactionResponse rejectDirectMeeting(Long transactionId) {
+        Long currentUserId = currentUserProvider.getCurrentUserId();
+        Transaction transaction = findTransactionWithAccess(transactionId, currentUserId);
+
+        validateActive(transaction);
+        validateDirectTransaction(transaction);
+
+        if (!transaction.isBuyer(currentUserId)) {
+            throw new PaprikaException(ErrorCode.TRANSACTION_ACCESS_DENIED);
+        }
+
+        try {
+            transaction.rejectDirectMeeting(currentUserId);
+        } catch (IllegalStateException e) {
+            throw new PaprikaException(ErrorCode.INVALID_TRANSACTION_STATUS);
+        }
+
+        return TransactionResponse.from(transaction, currentUserId);
+    }
+
+    @Transactional
+    public TransactionResponse cancelTransaction(Long transactionId) {
+        Long currentUserId = currentUserProvider.getCurrentUserId();
+        Transaction transaction = findTransactionWithAccess(transactionId, currentUserId);
+
+        try {
+            transaction.cancel(currentUserId);
+        } catch (IllegalStateException e) {
+            throw new PaprikaException(ErrorCode.INVALID_TRANSACTION_STATUS);
+        }
+
+        releaseProduct(transaction);
+
+        return TransactionResponse.from(transaction, currentUserId);
+    }
+
+    @Transactional
     public TransactionResponse confirmDirectComplete(Long transactionId, TransactionCompleteRequest request) {
         Long currentUserId = currentUserProvider.getCurrentUserId();
         Transaction transaction = findTransactionWithAccess(transactionId, currentUserId);
 
-        validateNotCompleted(transaction);
+        validateActive(transaction);
         validateDirectTransaction(transaction);
 
         if (transaction.getStatus() != TransactionStatus.MEETING_SET
@@ -159,6 +225,10 @@ public class TransactionService {
             throw new PaprikaException(ErrorCode.INVALID_TRANSACTION_STATUS);
         }
 
+        if (transaction.isCompleted()) {
+            markProductSold(transaction);
+        }
+
         return TransactionResponse.from(transaction, currentUserId);
     }
 
@@ -167,7 +237,7 @@ public class TransactionService {
         Long currentUserId = currentUserProvider.getCurrentUserId();
         Transaction transaction = findTransactionWithAccess(transactionId, currentUserId);
 
-        validateNotCompleted(transaction);
+        validateActive(transaction);
         validateDeliveryTransaction(transaction);
         validateInvoiceRegistration(transaction, currentUserId);
 
@@ -181,7 +251,7 @@ public class TransactionService {
         Long currentUserId = currentUserProvider.getCurrentUserId();
         Transaction transaction = findTransactionWithAccess(transactionId, currentUserId);
 
-        validateNotCompleted(transaction);
+        validateActive(transaction);
         validateDeliveryTransaction(transaction);
         validateSellerOnly(transaction, currentUserId);
 
@@ -210,7 +280,7 @@ public class TransactionService {
         Transaction transaction = transactionRepository.findById(transactionId)
                 .orElseThrow(() -> new PaprikaException(ErrorCode.TRANSACTION_NOT_FOUND));
 
-        validateNotCompleted(transaction);
+        validateActive(transaction);
         validateDeliveryTransaction(transaction);
 
         if (!transaction.isSeller(currentUserId)) {
@@ -236,7 +306,7 @@ public class TransactionService {
         Long currentUserId = currentUserProvider.getCurrentUserId();
         Transaction transaction = findTransactionWithAccess(transactionId, currentUserId);
 
-        validateNotCompleted(transaction);
+        validateActive(transaction);
         validateDeliveryTransaction(transaction);
 
         if (!transaction.isBuyer(currentUserId)) {
@@ -254,6 +324,10 @@ public class TransactionService {
             throw new PaprikaException(ErrorCode.INVALID_TRANSACTION_STATUS);
         }
 
+        if (transaction.isCompleted()) {
+            markProductSold(transaction);
+        }
+
         return TransactionResponse.from(transaction, currentUserId);
     }
 
@@ -268,10 +342,25 @@ public class TransactionService {
         return transaction;
     }
 
-    private void validateNotCompleted(Transaction transaction) {
-        if (transaction.isCompleted()) {
+    private void validateActive(Transaction transaction) {
+        if (!transaction.isActive()) {
             throw new PaprikaException(ErrorCode.INVALID_TRANSACTION_STATUS);
         }
+    }
+
+    private void markProductSold(Transaction transaction) {
+        productRepository.findById(transaction.getProductId())
+                .ifPresent(Product::markAsSold);
+    }
+
+    private void reserveProduct(Transaction transaction) {
+        productRepository.findById(transaction.getProductId())
+                .ifPresent(Product::markAsReserved);
+    }
+
+    private void releaseProduct(Transaction transaction) {
+        productRepository.findById(transaction.getProductId())
+                .ifPresent(Product::restoreToSelling);
     }
 
     private void validateDirectTransaction(Transaction transaction) {

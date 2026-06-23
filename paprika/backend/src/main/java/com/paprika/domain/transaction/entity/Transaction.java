@@ -270,7 +270,28 @@ public class Transaction {
         return trackingNumber != null && !trackingNumber.isBlank();
     }
 
-    public void setDirectMeeting(
+    public boolean isCancelled() {
+        return status == TransactionStatus.CANCELLED;
+    }
+
+    /** 완료/취소 전(진행 중) 상태인지 */
+    public boolean isActive() {
+        return status != TransactionStatus.COMPLETED && status != TransactionStatus.CANCELLED;
+    }
+
+    /** 현재 상태에서 취소가 가능한지 (완료/취소 후 불가, 택배는 발송 이후 불가) */
+    public boolean isCancellable() {
+        if (status == TransactionStatus.COMPLETED || status == TransactionStatus.CANCELLED) {
+            return false;
+        }
+        if (isDelivery()) {
+            return status == TransactionStatus.REQUESTED || status == TransactionStatus.PREPARING;
+        }
+        return true;
+    }
+
+    /** 판매자가 직거래 약속을 제안한다. 구매자 수락 전까지 MEETING_PROPOSED 상태가 된다. */
+    public void proposeDirectMeeting(
             String meetingPlaceName,
             String meetingAddress,
             Double latitude,
@@ -282,7 +303,47 @@ public class Transaction {
         this.latitude = latitude;
         this.longitude = longitude;
         this.meetingAt = meetingAt;
+        this.status = TransactionStatus.MEETING_PROPOSED;
+        this.buyerCompleteConfirmed = false;
+        this.sellerCompleteConfirmed = false;
+    }
+
+    /** 구매자가 제안된 약속을 수락한다. */
+    public void acceptDirectMeeting(Long userId) {
+        if (!isBuyer(userId)) {
+            throw new IllegalStateException("구매자만 약속을 수락할 수 있습니다.");
+        }
+        if (status != TransactionStatus.MEETING_PROPOSED) {
+            throw new IllegalStateException("제안된 약속이 없습니다.");
+        }
         this.status = TransactionStatus.MEETING_SET;
+    }
+
+    /** 구매자가 제안된 약속을 거절한다. 약속 정보를 비우고 거래 요청 상태로 되돌린다. */
+    public void rejectDirectMeeting(Long userId) {
+        if (!isBuyer(userId)) {
+            throw new IllegalStateException("구매자만 약속을 거절할 수 있습니다.");
+        }
+        if (status != TransactionStatus.MEETING_PROPOSED) {
+            throw new IllegalStateException("제안된 약속이 없습니다.");
+        }
+        this.meetingPlaceName = null;
+        this.meetingAddress = null;
+        this.latitude = null;
+        this.longitude = null;
+        this.meetingAt = null;
+        this.status = TransactionStatus.REQUESTED;
+    }
+
+    /** 거래 참여자가 거래를 취소한다. */
+    public void cancel(Long userId) {
+        if (!isParticipant(userId)) {
+            throw new IllegalStateException("거래 참여자가 아닙니다.");
+        }
+        if (!isCancellable()) {
+            throw new IllegalStateException("현재 상태에서는 거래를 취소할 수 없습니다.");
+        }
+        this.status = TransactionStatus.CANCELLED;
     }
 
     public void confirmDirectComplete(Long userId) {

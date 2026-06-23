@@ -8,8 +8,11 @@ import TransactionStatusBadge, { TransactionTypeBadge } from '@/components/trans
 import { getCurrentUserId } from '@/lib/auth';
 import { getApiErrorMessage } from '@/lib/apiError';
 import {
+  acceptDirectMeeting,
+  cancelTransaction,
   confirmDirectComplete,
   getTransaction,
+  rejectDirectMeeting,
   updateDirectMeeting,
 } from '@/lib/transactionApi';
 import type { TransactionResponse } from '@/types/transaction';
@@ -83,18 +86,33 @@ export default function TransactionDetail({ transactionId }: TransactionDetailPr
 
   const isBuyer = currentUserId === transaction.buyerId;
   const isSeller = currentUserId === transaction.sellerId;
+  const isParticipant = isBuyer || isSeller;
   const isCompleted = transaction.completed || transaction.status === 'COMPLETED';
+  const isCancelled = transaction.status === 'CANCELLED';
+  const isActive = !isCompleted && !isCancelled;
+  const isProposed = transaction.status === 'MEETING_PROPOSED';
 
   const canSetMeeting =
     isSeller &&
-    !isCompleted &&
-    (transaction.status === 'REQUESTED' || transaction.status === 'MEETING_SET');
+    isActive &&
+    (transaction.status === 'REQUESTED' ||
+      transaction.status === 'MEETING_PROPOSED' ||
+      transaction.status === 'MEETING_SET');
+
+  const canRespondMeeting = isBuyer && isActive && isProposed;
 
   const canDirectComplete =
-    !isCompleted &&
+    isActive &&
     (transaction.status === 'MEETING_SET' || transaction.status === 'MEETING_COMPLETED') &&
     ((isBuyer && !transaction.buyerCompleteConfirmed) ||
       (isSeller && !transaction.sellerCompleteConfirmed));
+
+  const canCancel =
+    isParticipant &&
+    isActive &&
+    (transaction.transactionType === 'DIRECT'
+      ? transaction.status !== 'COMPLETED'
+      : transaction.status === 'REQUESTED' || transaction.status === 'PREPARING');
 
   const waitingForCounterpartDirect =
     transaction.transactionType === 'DIRECT' &&
@@ -147,6 +165,31 @@ export default function TransactionDetail({ transactionId }: TransactionDetailPr
           <div className={styles.successNotice}>거래가 완료되었습니다.</div>
         )}
 
+        {isCancelled && (
+          <div className={styles.cancelNotice}>취소된 거래입니다.</div>
+        )}
+
+        {isParticipant && (
+          <Link href="/chat" className={styles.contactBtn}>
+            연락하기
+          </Link>
+        )}
+
+        {canCancel && (
+          <button
+            type="button"
+            className={styles.cancelBtn}
+            onClick={() => {
+              if (window.confirm('정말 거래를 취소하시겠습니까?')) {
+                runAction(() => cancelTransaction(transaction.id));
+              }
+            }}
+            disabled={actionLoading}
+          >
+            거래 취소
+          </button>
+        )}
+
         {actionError && <p className={styles.error}>{actionError}</p>}
       </section>
 
@@ -181,6 +224,35 @@ export default function TransactionDetail({ transactionId }: TransactionDetailPr
             </div>
           )}
 
+          {isProposed && (
+            <div className={styles.notice}>
+              {isBuyer
+                ? '판매자가 약속을 제안했습니다. 수락 또는 거절해주세요.'
+                : '구매자의 약속 수락을 기다리고 있습니다.'}
+            </div>
+          )}
+
+          {canRespondMeeting && (
+            <div className={styles.responseRow}>
+              <button
+                type="button"
+                className={styles.actionBtn}
+                onClick={() => runAction(() => acceptDirectMeeting(transaction.id))}
+                disabled={actionLoading}
+              >
+                {actionLoading ? '처리 중...' : '약속 수락'}
+              </button>
+              <button
+                type="button"
+                className={styles.rejectBtn}
+                onClick={() => runAction(() => rejectDirectMeeting(transaction.id))}
+                disabled={actionLoading}
+              >
+                약속 거절
+              </button>
+            </div>
+          )}
+
           {waitingForCounterpartDirect && (
             <div className={styles.notice}>상대방 확인 대기 중입니다.</div>
           )}
@@ -192,7 +264,7 @@ export default function TransactionDetail({ transactionId }: TransactionDetailPr
               onClick={() => setShowMeetingForm(true)}
               disabled={actionLoading}
             >
-              약속 장소 지정
+              {transaction.meetingPlaceName ? '약속 다시 제안' : '약속 장소 제안'}
             </button>
           )}
 

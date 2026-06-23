@@ -6,13 +6,15 @@ export type TaxInvoiceStatus = 'NOT_REQUESTED' | 'REQUESTED' | 'ISSUED';
 
 export type TransactionStatus =
   | 'REQUESTED'
+  | 'MEETING_PROPOSED'
   | 'MEETING_SET'
   | 'MEETING_COMPLETED'
   | 'PREPARING'
   | 'SHIPPED'
   | 'IN_TRANSIT'
   | 'DELIVERED'
-  | 'COMPLETED';
+  | 'COMPLETED'
+  | 'CANCELLED';
 
 export type DeliveryStatus = 'PREPARING' | 'SHIPPED' | 'IN_TRANSIT' | 'DELIVERED';
 

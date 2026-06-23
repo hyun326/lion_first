@@ -76,6 +76,36 @@ public class TransactionController {
         ));
     }
 
+    @PatchMapping("/{transactionId}/direct-meeting/accept")
+    public ResponseEntity<ApiResponse<TransactionResponse>> acceptDirectMeeting(
+            @PathVariable Long transactionId
+    ) {
+        return ResponseEntity.ok(ApiResponse.ok(
+                "약속을 수락했습니다.",
+                transactionService.acceptDirectMeeting(transactionId)
+        ));
+    }
+
+    @PatchMapping("/{transactionId}/direct-meeting/reject")
+    public ResponseEntity<ApiResponse<TransactionResponse>> rejectDirectMeeting(
+            @PathVariable Long transactionId
+    ) {
+        return ResponseEntity.ok(ApiResponse.ok(
+                "약속을 거절했습니다.",
+                transactionService.rejectDirectMeeting(transactionId)
+        ));
+    }
+
+    @PatchMapping("/{transactionId}/cancel")
+    public ResponseEntity<ApiResponse<TransactionResponse>> cancelTransaction(
+            @PathVariable Long transactionId
+    ) {
+        return ResponseEntity.ok(ApiResponse.ok(
+                "거래가 취소되었습니다.",
+                transactionService.cancelTransaction(transactionId)
+        ));
+    }
+
     @PatchMapping("/{transactionId}/delivery/invoice")
     public ResponseEntity<ApiResponse<TransactionResponse>> updateDeliveryInvoice(
             @PathVariable Long transactionId,

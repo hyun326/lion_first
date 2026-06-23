@@ -8,6 +8,7 @@ const TRANSACTION_TYPE_LABEL: Record<TransactionType, string> = {
 
 const STATUS_LABEL: Record<TransactionStatus, string> = {
   REQUESTED: '거래 요청',
+  MEETING_PROPOSED: '약속 제안됨',
   MEETING_SET: '약속 확정',
   MEETING_COMPLETED: '완료 확인 중',
   PREPARING: '배송 준비',
@@ -15,6 +16,7 @@ const STATUS_LABEL: Record<TransactionStatus, string> = {
   IN_TRANSIT: '배송 중',
   DELIVERED: '배송 완료',
   COMPLETED: '거래 완료',
+  CANCELLED: '거래 취소',
 };
 
 interface TransactionStatusBadgeProps {

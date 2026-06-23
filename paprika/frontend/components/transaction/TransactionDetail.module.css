@@ -119,6 +119,16 @@
   margin-bottom: 16px;
 }
 
+.cancelNotice {
+  padding: 14px 16px;
+  border-radius: 14px;
+  background: var(--color-surface-container);
+  color: var(--color-on-surface-variant);
+  font-size: 14px;
+  font-weight: 700;
+  margin-bottom: 16px;
+}
+
 .error {
   padding: 14px 16px;
   border-radius: 14px;
@@ -126,6 +136,67 @@
   color: var(--color-on-error-container);
   font-size: 14px;
   margin-bottom: 16px;
+}
+
+.responseRow {
+  display: flex;
+  gap: 12px;
+  margin-top: 12px;
+}
+
+.responseRow .actionBtn {
+  margin-top: 0;
+}
+
+.rejectBtn {
+  flex: 1;
+  padding: 14px 16px;
+  border: 1px solid var(--color-outline-variant);
+  border-radius: 14px;
+  background: var(--color-surface-container);
+  color: var(--color-on-surface);
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.rejectBtn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.contactBtn {
+  display: block;
+  width: 100%;
+  box-sizing: border-box;
+  padding: 14px 16px;
+  margin-top: 12px;
+  border-radius: 14px;
+  background: var(--color-secondary-container);
+  color: var(--color-on-secondary-container);
+  font-size: 15px;
+  font-weight: 700;
+  text-align: center;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.cancelBtn {
+  width: 100%;
+  padding: 12px 16px;
+  margin-top: 8px;
+  border: 1px solid var(--color-error);
+  border-radius: 14px;
+  background: transparent;
+  color: var(--color-error);
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.cancelBtn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
 }
 
 .actionBtn {

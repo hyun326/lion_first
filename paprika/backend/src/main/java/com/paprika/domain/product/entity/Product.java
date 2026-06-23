@@ -71,4 +71,23 @@ public class Product {
     private LocalDateTime updatedAt;
 
     public enum ProductStatus { SELLING, RESERVED, SOLD, DRAFT }
+
+    /** 거래 완료 시 판매 완료로 변경 */
+    public void markAsSold() {
+        this.status = ProductStatus.SOLD;
+    }
+
+    /** 약속 확정 시 예약중으로 변경 (판매중일 때만) */
+    public void markAsReserved() {
+        if (this.status == ProductStatus.SELLING) {
+            this.status = ProductStatus.RESERVED;
+        }
+    }
+
+    /** 거래 취소 시 다시 판매중으로 복귀 (예약중일 때만) */
+    public void restoreToSelling() {
+        if (this.status == ProductStatus.RESERVED) {
+            this.status = ProductStatus.SELLING;
+        }
+    }
 }

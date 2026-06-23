@@ -2,7 +2,9 @@ package com.paprika.global.exception;
 
 import com.paprika.global.response.ApiResponse;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.OptimisticLockingFailureException;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -36,6 +38,13 @@ public class GlobalExceptionHandler {
         log.warn("OptimisticLockingFailureException: {}", e.getMessage());
         return ResponseEntity.status(ErrorCode.CONCURRENT_TRANSACTION_MODIFICATION.getHttpStatus())
                 .body(ApiResponse.fail(ErrorCode.CONCURRENT_TRANSACTION_MODIFICATION.getMessage()));
+    }
+
+    @ExceptionHandler(DataIntegrityViolationException.class)
+    public ResponseEntity<ApiResponse<Void>> handleDataIntegrityViolation(DataIntegrityViolationException e) {
+        log.error("DataIntegrityViolationException (DB 제약 위반 - 마이그레이션 미적용 가능성)", e);
+        return ResponseEntity.status(HttpStatus.CONFLICT)
+                .body(ApiResponse.fail("데이터 제약 조건 위반입니다. DB 마이그레이션(상태값 CHECK 제약) 적용 여부를 확인하세요."));
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)

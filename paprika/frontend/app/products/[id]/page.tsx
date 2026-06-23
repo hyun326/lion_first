@@ -1,7 +1,10 @@
 'use client';
 
+import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { getSampleProductById } from '@/lib/sampleProducts';
+import { getMyTransactions } from '@/lib/transactionApi';
+import type { TransactionResponse } from '@/types/transaction';
 import styles from './page.module.css';
 
 export default function ProductDetailPage({
@@ -11,6 +14,31 @@ export default function ProductDetailPage({
 }) {
   const router = useRouter();
   const product = getSampleProductById(Number(params.id));
+  const [myTransaction, setMyTransaction] = useState<TransactionResponse | null>(null);
+
+  useEffect(() => {
+    if (!product) return;
+    let cancelled = false;
+
+    getMyTransactions()
+      .then((list) => {
+        if (cancelled) return;
+        const active = list.find(
+          (t) =>
+            t.productId === product.id &&
+            t.status !== 'COMPLETED' &&
+            t.status !== 'CANCELLED'
+        );
+        setMyTransaction(active ?? null);
+      })
+      .catch(() => {
+        // 거래 조회 실패 시 기본 '거래하기' 노출
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [product]);
 
   if (!product) {
     return (
@@ -80,20 +108,43 @@ export default function ProductDetailPage({
 
         <div className={styles.actionsCard}>
           <h2 className={styles.actionsTitle}>거래 옵션</h2>
+
+          {myTransaction && (
+            <p className={styles.hint}>이미 진행 중인 거래가 있어요.</p>
+          )}
+
           <div className={styles.actionRow}>
             <button className={styles.secondaryButton} type="button">
               관심 등록
             </button>
-            <button className={styles.secondaryButton} type="button">
+            <button
+              className={styles.secondaryButton}
+              type="button"
+              onClick={() => router.push('/chat')}
+            >
               채팅하기
             </button>
-            <button
-              className={styles.primaryButton}
-              type="button"
-              onClick={() => router.push(`/transaction/${product.id}`)}
-            >
-              거래하기
-            </button>
+            {myTransaction ? (
+              <button
+                className={styles.primaryButton}
+                type="button"
+                onClick={() => router.push(`/transactions/${myTransaction.id}`)}
+              >
+                거래 진행 중 보기
+              </button>
+            ) : product.status === 'SOLD' ? (
+              <button className={styles.primaryButton} type="button" disabled>
+                판매완료
+              </button>
+            ) : (
+              <button
+                className={styles.primaryButton}
+                type="button"
+                onClick={() => router.push(`/transaction/${product.id}`)}
+              >
+                거래하기
+              </button>
+            )}
           </div>
         </div>
       </section>
