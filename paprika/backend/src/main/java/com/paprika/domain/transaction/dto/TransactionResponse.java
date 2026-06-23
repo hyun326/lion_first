@@ -24,6 +24,8 @@ public class TransactionResponse {
     private TransactionType transactionType;
     private TransactionStatus status;
     private BigDecimal amount;
+    private BigDecimal feeAmount;
+    private BigDecimal totalAmount;
     private PaymentMethod paymentMethod;
     private TaxInvoiceStatus taxInvoiceStatus;
     private String taxInvoiceCompanyName;
@@ -61,6 +63,8 @@ public class TransactionResponse {
                 .transactionType(transaction.getTransactionType())
                 .status(transaction.getStatus())
                 .amount(transaction.getAmount())
+                .feeAmount(transaction.getFeeAmount())
+                .totalAmount(transaction.getTotalAmount())
                 .paymentMethod(transaction.getPaymentMethod())
                 .taxInvoiceStatus(transaction.getTaxInvoiceStatus())
                 .taxInvoiceCompanyName(transaction.getTaxInvoiceCompanyName())

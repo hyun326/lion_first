@@ -37,7 +37,7 @@ export default function TransactionList({ transactions, loading, error }: Transa
               <TransactionTypeBadge transactionType={transaction.transactionType} />
               <TransactionStatusBadge status={transaction.status} />
             </div>
-            <span className={styles.amount}>{transaction.amount.toLocaleString()}원</span>
+            <span className={styles.amount}>{(transaction.totalAmount ?? transaction.amount).toLocaleString()}원</span>
           </div>
           <div className={styles.meta}>
             <span>상품 ID: {transaction.productId}</span>

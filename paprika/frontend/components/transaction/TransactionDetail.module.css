@@ -68,6 +68,38 @@
   margin-bottom: 16px;
 }
 
+.feeBreakdown {
+  margin-bottom: 16px;
+  padding: 12px 16px;
+  border-radius: 12px;
+  background: var(--color-surface-container-low);
+}
+
+.feeRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 14px;
+  color: var(--color-on-surface-variant);
+  padding: 4px 0;
+}
+
+.feeTotalRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 6px;
+  padding-top: 10px;
+  border-top: 1px solid var(--color-outline-variant);
+  font-size: 15px;
+  font-weight: 800;
+  color: var(--color-on-surface);
+}
+
+.feeTotalRow span:last-child {
+  color: var(--color-primary);
+}
+
 .notice {
   padding: 14px 16px;
   border-radius: 14px;

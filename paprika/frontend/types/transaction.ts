@@ -25,6 +25,8 @@ export interface TransactionResponse {
   transactionType: TransactionType;
   status: TransactionStatus;
   amount: number;
+  feeAmount?: number | null;
+  totalAmount?: number | null;
   paymentMethod?: PaymentMethod;
   taxInvoiceStatus?: TaxInvoiceStatus;
   taxInvoiceCompanyName?: string | null;
@@ -90,6 +92,19 @@ export interface DeliveryInvoicePayload {
 
 export interface DeliveryStatusPayload {
   status: DeliveryStatus;
+}
+
+/** 결제 수수료율 (5%) */
+export const FEE_RATE = 0.05;
+
+/** 상품 금액 기준 수수료(원 단위 반올림) 계산 */
+export function calculateFee(amount: number): number {
+  return Math.round(amount * FEE_RATE);
+}
+
+/** 총 결제 금액 = 상품 금액 + 수수료 */
+export function calculateTotalWithFee(amount: number): number {
+  return amount + calculateFee(amount);
 }
 
 export function getPaymentMethodLabel(method: PaymentMethod): string {

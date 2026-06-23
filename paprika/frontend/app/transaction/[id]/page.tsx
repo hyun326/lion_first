@@ -7,6 +7,7 @@ import { createTransaction } from '@/lib/transactionApi';
 import { getApiErrorMessage } from '@/lib/apiError';
 import { getSampleProductById } from '@/lib/sampleProducts';
 import type { PaymentMethod, TransactionType } from '@/types/transaction';
+import { FEE_RATE, calculateFee, calculateTotalWithFee } from '@/types/transaction';
 import styles from './page.module.css';
 
 export default function TransactionPage({
@@ -106,6 +107,22 @@ export default function TransactionPage({
           판매자: {product.sellerNickname}
         </span>
       </div>
+
+      <section className={styles.feeSummary}>
+        <h2 className={styles.sectionTitle}>결제 금액</h2>
+        <div className={styles.feeRow}>
+          <span>상품 금액</span>
+          <span>{product.price.toLocaleString()}원</span>
+        </div>
+        <div className={styles.feeRow}>
+          <span>결제 수수료 ({Math.round(FEE_RATE * 100)}%)</span>
+          <span>+{calculateFee(product.price).toLocaleString()}원</span>
+        </div>
+        <div className={styles.feeTotalRow}>
+          <span>총 결제 금액</span>
+          <span>{calculateTotalWithFee(product.price).toLocaleString()}원</span>
+        </div>
+      </section>
 
       <section className={styles.section}>
         <h2 className={styles.sectionTitle}>결제 수단</h2>

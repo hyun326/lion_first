@@ -1,5 +1,6 @@
 package com.paprika.domain.transaction.entity;
 
+import com.paprika.domain.transaction.FeeCalculator;
 import com.paprika.domain.transaction.TaxInvoiceCalculator;
 import com.paprika.domain.transaction.enums.DeliveryStatus;
 import com.paprika.domain.transaction.enums.PaymentMethod;
@@ -67,6 +68,10 @@ public class Transaction {
     @Column(nullable = false, precision = 19, scale = 2)
     private BigDecimal amount;
 
+    /** 결제 수수료 (상품 금액의 5%) */
+    @Column(name = "fee_amount", precision = 19, scale = 2)
+    private BigDecimal feeAmount;
+
     @Enumerated(EnumType.STRING)
     @Column(length = 10)
     private PaymentMethod paymentMethod;
@@ -129,6 +134,7 @@ public class Transaction {
         }
         this.transactionType = transactionType;
         this.amount = amount;
+        this.feeAmount = FeeCalculator.calculateFee(amount);
         applyPaymentAndTaxInvoice(
                 paymentMethod,
                 taxInvoiceRequested,
@@ -157,6 +163,7 @@ public class Transaction {
         transaction.sellerId = sellerId;
         transaction.transactionType = transactionType;
         transaction.amount = amount;
+        transaction.feeAmount = FeeCalculator.calculateFee(amount);
         transaction.status = TransactionStatus.REQUESTED;
         transaction.buyerCompleteConfirmed = false;
         transaction.sellerCompleteConfirmed = false;
@@ -217,6 +224,12 @@ public class Transaction {
         if (status == TransactionStatus.COMPLETED) {
             issueTaxInvoiceIfRequested();
         }
+    }
+
+    /** 총 결제 금액 = 상품 금액 + 수수료 */
+    public BigDecimal getTotalAmount() {
+        BigDecimal fee = feeAmount == null ? BigDecimal.ZERO : feeAmount;
+        return amount.add(fee);
     }
 
     public boolean isDirect() {

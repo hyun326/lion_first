@@ -115,7 +115,22 @@ export default function TransactionDetail({ transactionId }: TransactionDetailPr
           <TransactionStatusBadge status={transaction.status} />
         </div>
 
-        <p className={styles.amount}>{transaction.amount.toLocaleString()}원</p>
+        <p className={styles.amount}>{(transaction.totalAmount ?? transaction.amount).toLocaleString()}원</p>
+
+        <div className={styles.feeBreakdown}>
+          <div className={styles.feeRow}>
+            <span>상품 금액</span>
+            <span>{transaction.amount.toLocaleString()}원</span>
+          </div>
+          <div className={styles.feeRow}>
+            <span>결제 수수료 (5%)</span>
+            <span>+{(transaction.feeAmount ?? 0).toLocaleString()}원</span>
+          </div>
+          <div className={styles.feeTotalRow}>
+            <span>총 결제 금액</span>
+            <span>{(transaction.totalAmount ?? transaction.amount).toLocaleString()}원</span>
+          </div>
+        </div>
 
         <div className={styles.infoGrid}>
           <span>거래 ID: {transaction.id}</span>

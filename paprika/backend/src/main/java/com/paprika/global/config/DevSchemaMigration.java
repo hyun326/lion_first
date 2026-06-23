@@ -33,5 +33,12 @@ public class DevSchemaMigration {
         } catch (Exception e) {
             log.warn("Could not align transactions_status_check: {}", e.getMessage());
         }
+
+        try {
+            jdbcTemplate.execute("ALTER TABLE transactions ADD COLUMN IF NOT EXISTS fee_amount numeric(19, 2)");
+            log.info("Ensured transactions.fee_amount column");
+        } catch (Exception e) {
+            log.warn("Could not add transactions.fee_amount: {}", e.getMessage());
+        }
     }
 }
