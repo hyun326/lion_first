@@ -31,7 +31,11 @@ export default function TransactionList({ transactions, loading, error }: Transa
   return (
     <div className={styles.list}>
       {transactions.map((transaction) => (
-        <Link key={transaction.id} href={`/transactions/${transaction.id}`} className={styles.card}>
+        <Link
+          key={transaction.id}
+          href={`/transactions/${transaction.id}`}
+          className={`${styles.card} ${transaction.status === 'CANCELLED' ? styles.cancelledCard : ''}`}
+        >
           <div className={styles.cardHeader}>
             <div className={styles.badges}>
               <TransactionTypeBadge transactionType={transaction.transactionType} />
