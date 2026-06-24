@@ -1,0 +1,53 @@
+name: Build and Push Docker Images to GHCR
+
+on:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: read
+  packages: write
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v4
+
+      - name: Login to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build backend image
+        run: |
+          docker build \
+            -t ghcr.io/hyun326/lion_first-backend:${{ github.sha }} \
+            -t ghcr.io/hyun326/lion_first-backend:latest \
+            -f paprika/backend/Dockerfile \
+            paprika/backend
+
+      - name: Push backend image
+        run: |
+          docker push ghcr.io/hyun326/lion_first-backend:${{ github.sha }}
+          docker push ghcr.io/hyun326/lion_first-backend:latest
+
+      - name: Build frontend image
+        run: |
+          docker build \
+            --build-arg NEXT_PUBLIC_API_URL=https://paprika-api.coder-han.com \
+            --build-arg NEXT_PUBLIC_WS_URL=https://paprika-api.coder-han.com \
+            -t ghcr.io/hyun326/lion_first-frontend:${{ github.sha }} \
+            -t ghcr.io/hyun326/lion_first-frontend:latest \
+            -f paprika/frontend/Dockerfile \
+            paprika/frontend
+
+      - name: Push frontend image
+        run: |
+          docker push ghcr.io/hyun326/lion_first-frontend:${{ github.sha }}
+          docker push ghcr.io/hyun326/lion_first-frontend:latest
