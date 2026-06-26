@@ -14,7 +14,7 @@
 import type { Metadata } from 'next';
 import type { Product } from '@/types';
 import styles from './page.module.css';
-import TransactionButton from './TransactionButton';
+import TransactionButton from '../../transactions/TransactionButton';
 
 export const metadata: Metadata = {
   title: 'Paprika - 상품 상세',
