@@ -102,7 +102,7 @@ export default function ProductDetailPage({
             <button className={styles.secondaryButton} type="button">
               채팅하기
             </button>
-            <TransactionButton />
+            <TransactionButton status={sampleProduct.status} />
           </div>
         </div>
       </section>

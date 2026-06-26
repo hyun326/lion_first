@@ -1,18 +1,27 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
+import type { ProductStatus } from '@/types';
 import styles from './page.module.css';
 
-export default function TransactionButton() {
+const DISABLED_LABEL: Partial<Record<ProductStatus, string>> = {
+  RESERVED: '예약중',
+  SOLD: '판매완료',
+  DRAFT: '거래 불가',
+};
+
+export default function TransactionButton({ status }: { status: ProductStatus }) {
   const router = useRouter();
+  const disabled = status !== 'SELLING';
 
   return (
     <button
       className={styles.primaryButton}
       type="button"
+      disabled={disabled}
       onClick={() => router.push('/transactions')}
     >
-      거래하기
+      {disabled ? DISABLED_LABEL[status] ?? '거래 불가' : '거래하기'}
     </button>
   );
 }
