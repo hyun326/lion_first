@@ -1,0 +1,33 @@
+# 환경변수 (절대 커밋 금지)
+.env
+.env.local
+.env.*.local
+
+# Backend
+backend/.gradle/
+backend/build/
+backend/bin/
+backend/out/
+*.class
+
+# Frontend
+frontend/node_modules/
+frontend/.next/
+frontend/out/
+
+# IDE
+.idea/
+.vscode/
+*.iml
+
+# MacOS
+.DS_Store
+
+# Gradle Configuration
+gradle*
+!backend/gradlew
+!backend/gradlew.bat
+!backend/gradle/
+!backend/gradle/wrapper/
+!backend/gradle/wrapper/gradle-wrapper.jar
+!backend/gradle/wrapper/gradle-wrapper.properties

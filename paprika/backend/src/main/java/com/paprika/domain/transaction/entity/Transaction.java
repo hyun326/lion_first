@@ -71,7 +71,6 @@ public class Transaction {
     public enum TransactionStatus {
         PENDING,       // 거래 요청
         AGREED,        // 거래 확정
-        IN_TRANSIT,    // 배송 중 (택배)
         COMPLETED,     // 거래 완료
         CANCELLED      // 거래 취소
     }
