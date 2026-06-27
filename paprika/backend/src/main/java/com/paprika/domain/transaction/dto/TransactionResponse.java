@@ -35,8 +35,6 @@ public class TransactionResponse {
 
     // 직거래 상세 (type = DIRECT 일 때)
     private String meetingLocation;
-    private Double meetingLatitude;
-    private Double meetingLongitude;
     private LocalDateTime meetingTime;
     private String directStatus;
 
@@ -62,8 +60,6 @@ public class TransactionResponse {
 
         if (direct != null) {
             builder.meetingLocation(direct.getMeetingLocation())
-                .meetingLatitude(direct.getMeetingLatitude())
-                .meetingLongitude(direct.getMeetingLongitude())
                 .meetingTime(direct.getMeetingTime())
                 .directStatus(direct.getDirectStatus().name());
         }

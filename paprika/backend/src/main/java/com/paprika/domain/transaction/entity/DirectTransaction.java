@@ -25,10 +25,6 @@ public class DirectTransaction {
 
     private String meetingLocation; // 직거래 장소 (약속 전 null 가능)
 
-    private Double meetingLatitude;  // 약속 장소 위도 (지도)
-
-    private Double meetingLongitude; // 약속 장소 경도 (지도)
-
     private LocalDateTime meetingTime; // 약속 일시 (약속 전 null 가능)
 
     @Enumerated(EnumType.STRING)
@@ -40,21 +36,16 @@ public class DirectTransaction {
 
     @Builder
     private DirectTransaction(Long transactionId, String meetingLocation,
-                             Double meetingLatitude, Double meetingLongitude,
                              LocalDateTime meetingTime) {
         this.transactionId = transactionId;
         this.meetingLocation = meetingLocation;
-        this.meetingLatitude = meetingLatitude;
-        this.meetingLongitude = meetingLongitude;
         this.meetingTime = meetingTime;
         this.directStatus = DirectStatus.PENDING;
     }
 
     /** 약속 장소/시간 확정 */
-    public void confirmMeeting(String location, Double latitude, Double longitude, LocalDateTime time) {
+    public void confirmMeeting(String location, LocalDateTime time) {
         this.meetingLocation = location;
-        this.meetingLatitude = latitude;
-        this.meetingLongitude = longitude;
         this.meetingTime = time;
         this.directStatus = DirectStatus.CONFIRMED;
     }

@@ -27,7 +27,5 @@ public class TransactionCreateRequest {
 
     // 직거래(DIRECT) 시 입력 (선택)
     private String meetingLocation;
-    private Double meetingLatitude; // 위도
-    private Double meetingLongitude; // 경도
     private LocalDateTime meetingTime; 
 }
