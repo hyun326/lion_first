@@ -19,7 +19,7 @@ interface ProductCardProps {
 
 export default function ProductCard({ product }: ProductCardProps) {
   const isSold = product.status === 'SOLD';
-
+//카드 내용 만들기
   const cardInner = (
     <article className={`${styles.card} ${isSold ? styles.soldCard : ''}`}>
       <div className={styles.thumb}>

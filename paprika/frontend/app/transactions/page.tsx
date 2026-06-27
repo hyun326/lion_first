@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import styles from './page.module.css';
 
 type PaymentMethod = 'CASH' | 'CARD';
@@ -12,6 +13,24 @@ export default function TransactionPage() {
   const [phoneNumber, setPhoneNumber] = useState('');
   const [businessNumber, setBusinessNumber] = useState('');
 
+  const router = useRouter();
+
+  // 결제수단(현금/카드)은 택배거래(DELIVERY)에서만 선택 가능. 직거래(DIRECT)면 잠금.
+  const isDirect = transactionType === 'DIRECT';
+
+  const selectDirect = () => {
+    setTransactionType('DIRECT');
+    setPayment(null); // 직거래는 결제수단 불필요 → 선택값 초기화
+  };
+
+  const handleComplete = () => {
+    // 직거래는 약속(장소/시간) 페이지로 이동, 그 외는 완료 알림
+    if (isDirect) {
+      router.push('/transactions/direct');
+      return;
+    }
+  };
+
   return (
     <main className={styles.page}>
       <div className={styles.container}>
@@ -19,6 +38,7 @@ export default function TransactionPage() {
           <button
             type="button"
             className={payment === 'CASH' ? styles.optionActive : styles.optionButton}
+            disabled={isDirect}
             onClick={() => setPayment('CASH')}
           >
             현금결제
@@ -26,6 +46,7 @@ export default function TransactionPage() {
           <button
             type="button"
             className={payment === 'CARD' ? styles.optionActive : styles.optionButton}
+            disabled={isDirect}
             onClick={() => setPayment('CARD')}
           >
             카드결제
@@ -64,7 +85,7 @@ export default function TransactionPage() {
           <button
             type="button"
             className={transactionType === 'DIRECT' ? styles.optionActive : styles.optionButton}
-            onClick={() => setTransactionType('DIRECT')}
+            onClick={selectDirect}
           >
             직거래
           </button>
@@ -80,7 +101,7 @@ export default function TransactionPage() {
         <button
           type="button"
           className={styles.completeButton}
-          onClick={() => alert('거래가 완료되었습니다.')}
+          onClick={handleComplete}
         >
           완료
         </button>

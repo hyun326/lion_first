@@ -38,6 +38,12 @@
   color: var(--color-on-primary);
 }
 
+.optionButton:disabled,
+.optionActive:disabled {
+  cursor: not-allowed;
+  opacity: 0.45;
+}
+
 .field {
   display: flex;
   flex-direction: column;
