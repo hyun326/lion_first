@@ -27,7 +27,8 @@ public class ChatRoom {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private Long productId;  // TODO: Product와 @ManyToOne
+    @Column(name = "post_id", nullable = false)
+    private Long postId;  // TODO: Product와 @ManyToOne (DB 컬럼은 post_id로 통일됨)
 
     private Long buyerId;    // TODO: User와 @ManyToOne
 

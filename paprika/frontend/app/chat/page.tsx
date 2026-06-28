@@ -1,42 +1,31 @@
 /**
- * 채팅 목록 & 알림 페이지
- * 화면 참조: _2 (Paprika | Chat & Notifications)
+ * 채팅 페이지 (좌: 채팅창 / 우: 접속자 목록)
  * 담당: C - 한대천
  *
  * TODO:
- *  - 채팅방 목록 API 호출 (GET /api/v1/chat/rooms)
- *  - 읽지 않은 메시지 배지 표시
- *  - 알림 목록 탭 (새 채팅, 거래 상태 변경 등)
- *  - 실시간 새 메시지 알림 (WebSocket)
+ *  - 채팅 메시지 목록 API 호출 / WebSocket 연동
+ *  - 접속자 목록 실시간 갱신
  */
-import ChatRoomItem from '@/components/chat/ChatRoomItem';
-import type { ChatRoom } from '@/types';
+import styles from './page.module.css';
 
-const sampleRooms: ChatRoom[] = [
-  {
-    id: 1,
-    productId: 1,
-    productTitle: 'Vintage Canon AE-1',
-    counterpartId: 20,
-    counterpartNickname: 'RetroLover99',
-    lastMessage: 'Is the price negotiable?',
-    lastMessageAt: new Date().toISOString(),
-    unreadCount: 2,
-  } as ChatRoom,
-];
+const sampleUsers = ['RetroLover99', 'CameraFan', 'Buyer123'];
 
-export default function ChatListPage() {
+export default function ChatPage() {
   return (
-    <main style={{ padding: 24 }}>
-      <section style={{ maxWidth: 800, margin: '0 auto' }}>
-        <h1>채팅 & 알림</h1>
-
-        <div style={{ marginTop: 16, borderRadius: 12, overflow: 'hidden', background: 'var(--color-surface-container-lowest)' }}>
-          {sampleRooms.map((r) => (
-            <ChatRoomItem key={r.id} room={r} />
-          ))}
-        </div>
+    <div className={styles.container}>
+      <section className={styles.chatPanel}>
+        <div className={styles.chatHeader}>채팅</div>
+        <div className={styles.messageList}>{/* TODO: 메시지 목록 */}</div>
       </section>
-    </main>
+
+      <aside className={styles.usersPanel}>
+        <div className={styles.usersTitle}>접속자 목록</div>
+        {sampleUsers.map((user) => (
+          <div key={user} className={styles.userItem}>
+            {user}
+          </div>
+        ))}
+      </aside>
+    </div>
   );
 }

@@ -1,12 +1,15 @@
 package com.paprika.domain.chat.controller;
 
+import com.paprika.domain.chat.dto.ChatMessageRequest;
 import com.paprika.global.response.ApiResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
+import org.springframework.messaging.handler.annotation.DestinationVariable;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.Payload;
+import org.springframework.messaging.handler.annotation.SendTo;
 import org.springframework.web.bind.annotation.*;
 
 /**
@@ -52,10 +55,12 @@ public class ChatController {
         return ResponseEntity.ok(ApiResponse.ok(null));
     }
 
-    // WebSocket 메시지 핸들러
+    // WebSocket 메시지 핸들러 (프로토타입: 받은 메시지를 해당 방 구독자 전원에게 그대로 브로드캐스트)
+    // TODO: 메시지 DB 저장, 인증된 senderId 사용, 상대방 알림(/user/{userId}/notification)
     @MessageMapping("/chat/{roomId}")
-    public void sendMessage(@Payload Object messageRequest /* ChatMessageRequest */) {
-        // TODO: 메시지 저장 + /topic/chat/{roomId} 브로드캐스트
-        // TODO: 상대방에게 실시간 알림 전송 /user/{userId}/notification
+    @SendTo("/topic/chat/{roomId}")
+    public ChatMessageRequest sendMessage(@DestinationVariable Long roomId,
+                                          @Payload ChatMessageRequest messageRequest) {
+        return messageRequest;
     }
 }

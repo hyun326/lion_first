@@ -22,16 +22,14 @@ public class ChatMessage {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false)
+    @Column(name = "room_id", nullable = false)
     private Long chatRoomId; // TODO: ChatRoom과 @ManyToOne
 
     @Column(nullable = false)
     private Long senderId;   // TODO: User와 @ManyToOne
 
-    @Column(columnDefinition = "TEXT", nullable = false)
+    @Column(columnDefinition = "TEXT")
     private String content;
-
-    private boolean isRead = false;
 
     @CreatedDate
     private LocalDateTime createdAt;

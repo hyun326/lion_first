@@ -1,7 +1,7 @@
 spring:
   jpa:
     hibernate:
-      ddl-auto: update
+      ddl-auto: none
 
 # 개발 환경: 모든 API 허용 (JWT 필터 완성 전까지 사용)
 # A(민동현)가 JWT 필터 완성 후 이 파일 삭제하고 application-prod.yml로 전환
