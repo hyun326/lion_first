@@ -18,7 +18,7 @@ interface GooglePrediction {
     secondaryText?: { text?: string };
   };
 }
-
+//GooglePrediction : 구글 장소 정보
 interface GoogleSuggestion {
   placePrediction?: GooglePrediction;
 }
@@ -128,6 +128,8 @@ export default function AddressAutocomplete({
         onFocus={() => suggestions.length > 0 && setOpen(true)}
         onBlur={() => setOpen(false)}
       />
+      
+      // 자동완성 추천 목록을 화면에 실제로 그리는 JSX
       {open && suggestions.length > 0 && (
         <ul className={styles.list}>
           {suggestions.map((suggestion) => (

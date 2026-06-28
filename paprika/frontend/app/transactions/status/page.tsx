@@ -10,7 +10,6 @@ const viewerRole: ViewerRole = 'BUYER';
 
 interface TransactionItem {
   id: number;
-  imageUrl: string;
   meetingLocation: string;
   meetingTime: string;
 }
@@ -25,12 +24,11 @@ function TransactionStatusContent() {
     const meetingTime = searchParams.get('time') ?? '';
     if (!meetingLocation && !meetingTime) {
       return [];
-    }
+      }
     return [
       {
+        //각 거래를 구분할 고유 식별자
         id: Date.now(),
-        // TODO: Post(B) 팀 상품 데이터의 이미지(imageUrls)로 교체 예정. 지금은 placeholder
-        imageUrl: '/images/product-placeholder.svg',
         meetingLocation,
         meetingTime,
       },
@@ -55,19 +53,14 @@ function TransactionStatusContent() {
           <ul className={styles.list}>
             {items.map((item) => (
               <li key={item.id} className={styles.card}>
-                <div className={styles.product}>
-                  <div className={styles.thumb}>
-                    <img src={item.imageUrl} alt="상품 이미지" />
+                <div className={styles.info}>
+                  <div className={styles.meetingRow}>
+                    <span className={styles.meetingLabel}>장소</span>
+                    <span className={styles.meetingValue}>{item.meetingLocation || '-'}</span>
                   </div>
-                  <div className={styles.info}>
-                    <div className={styles.meetingRow}>
-                      <span className={styles.meetingLabel}>장소</span>
-                      <span className={styles.meetingValue}>{item.meetingLocation || '-'}</span>
-                    </div>
-                    <div className={styles.meetingRow}>
-                      <span className={styles.meetingLabel}>날짜·시간</span>
-                      <span className={styles.meetingValue}>{item.meetingTime || '-'}</span>
-                    </div>
+                  <div className={styles.meetingRow}>
+                    <span className={styles.meetingLabel}>날짜·시간</span>
+                    <span className={styles.meetingValue}>{item.meetingTime || '-'}</span>
                   </div>
                 </div>
 

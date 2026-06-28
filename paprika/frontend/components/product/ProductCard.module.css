@@ -13,22 +13,6 @@
     transform: translateY(-2px);
     box-shadow: var(--shadow-floating);
   }
-
-  /* 판매완료(SOLD): 클릭 불가 + 흐리게 */
-  .disabledLink {
-    pointer-events: none;
-    cursor: not-allowed;
-  }
-
-  .soldCard {
-    opacity: 0.55;
-    filter: grayscale(0.4);
-  }
-
-  .soldCard:hover {
-    transform: none;
-    box-shadow: var(--shadow-card);
-  }
   
   .thumb {
     width: 100%;

@@ -7,7 +7,7 @@ import styles from './page.module.css';
 const DISABLED_LABEL: Partial<Record<ProductStatus, string>> = {
   RESERVED: '예약중',
   SOLD: '판매완료',
-  DRAFT: '거래 불가',
+  DRAFT: '판매 준비중',
 };
 
 export default function TransactionButton({ status }: { status: ProductStatus }) {
