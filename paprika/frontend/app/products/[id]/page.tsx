@@ -14,7 +14,6 @@
 import type { Metadata } from 'next';
 import type { Product } from '@/types';
 import styles from './page.module.css';
-import TransactionButton from '../../transactions/TransactionButton';
 
 export const metadata: Metadata = {
   title: 'Paprika - 상품 상세',
@@ -102,7 +101,9 @@ export default function ProductDetailPage({
             <button className={styles.secondaryButton} type="button">
               채팅하기
             </button>
-            <TransactionButton status={sampleProduct.status} />
+            <button className={styles.primaryButton} type="button">
+              거래하기
+            </button>
           </div>
         </div>
       </section>
