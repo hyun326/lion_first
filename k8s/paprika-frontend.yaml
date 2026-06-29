@@ -1,0 +1,29 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: paprika-frontend
+  namespace: likelion-project
+  labels:
+    app: paprika-frontend
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: paprika-frontend
+  template:
+    metadata:
+      labels:
+        app: paprika-frontend
+    spec:
+      nodeSelector:
+        kubernetes.io/hostname: asus-vm200
+      containers:
+        - name: paprika-frontend
+          image: ghcr.io/hyun326/lion_first-frontend:13a80f62cff03f57616a2ebe1df77c4bf5868681
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 3000
+          # 설정 주입 — 클러스터의 ConfigMap 참조 (값은 git에 없음)
+          envFrom:
+            - configMapRef:
+                name: paprika-config

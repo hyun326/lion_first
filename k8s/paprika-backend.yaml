@@ -1,0 +1,43 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: paprika-backend
+  namespace: likelion-project
+  labels:
+    app: paprika-backend
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: paprika-backend
+  template:
+    metadata:
+      labels:
+        app: paprika-backend
+    spec:
+      nodeSelector:
+        kubernetes.io/hostname: asus-vm200
+      containers:
+        - name: paprika-backend
+          image: ghcr.io/hyun326/lion_first-backend:13a80f62cff03f57616a2ebe1df77c4bf5868681
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8080
+          # DB 자격증명 — 클러스터 Secret 참조 (값은 git에 없음)
+          env:
+            - name: DB_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: postgres-credentials
+                  key: POSTGRES_USER
+            - name: DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: postgres-credentials
+                  key: POSTGRES_PASSWORD
+          # 설정/시크릿 통째 주입 — 클러스터의 ConfigMap·Secret 참조
+          envFrom:
+            - configMapRef:
+                name: paprika-config
+            - secretRef:
+                name: paprika-secret

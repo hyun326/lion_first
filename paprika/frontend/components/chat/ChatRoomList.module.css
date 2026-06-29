@@ -1,0 +1,43 @@
+/* 클래스는 .list 하나만. 나머지는 구조(태그)로 선택 */
+
+.list {
+  margin: 8px 0 0;
+  padding: 0;
+  list-style: none;
+  border: 1px solid var(--color-outline-variant);
+  border-radius: var(--radius-lg, 12px);
+  overflow: hidden;
+}
+
+.list button {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 14px;
+  background: var(--color-surface-container-lowest, #fff);
+  border: none;
+  border-bottom: 1px solid var(--color-outline-variant);
+  cursor: pointer;
+  text-align: left;
+}
+
+.list li:last-child button {
+  border-bottom: none;
+}
+
+.list button:hover {
+  background: var(--color-surface-container, #f0eded);
+}
+
+.list span:first-child {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--color-on-surface);
+}
+
+.list span:last-child {
+  font-size: 12px;
+  color: var(--color-on-surface-variant);
+}

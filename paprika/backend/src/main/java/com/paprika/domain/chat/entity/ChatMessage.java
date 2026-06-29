@@ -33,4 +33,13 @@ public class ChatMessage {
 
     @CreatedDate
     private LocalDateTime createdAt;
+
+    /** 새 메시지 생성용 정적 팩토리 (방 + 보낸사람 + 내용) */
+    public static ChatMessage create(Long chatRoomId, Long senderId, String content) {
+        ChatMessage message = new ChatMessage();
+        message.chatRoomId = chatRoomId;
+        message.senderId = senderId;
+        message.content = content;
+        return message;
+    }
 }

@@ -1,0 +1,25 @@
+/* 클래스는 .chatButton 하나만. 버튼은 직접 자식(>)으로 선택해 자식 컴포넌트로 안 새게 한다 */
+
+/* 메인 '채팅하기/닫기' 버튼 */
+.chatButton > button:first-child {
+  padding: 10px 16px;
+  border: none;
+  border-radius: var(--radius-full, 9999px);
+  background: var(--color-primary);
+  color: var(--color-on-primary);
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+/* '← 목록으로' 뒤로가기 버튼 */
+.chatButton > button:not(:first-child) {
+  margin-top: 8px;
+  padding: 4px 0;
+  background: none;
+  border: none;
+  color: var(--color-primary);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+}

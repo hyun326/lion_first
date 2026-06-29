@@ -1,0 +1,131 @@
+/* 클래스는 .chat 하나만. 나머지는 구조(태그)로 다단계 선택 */
+
+.chat {
+  display: flex;
+  max-width: 900px;
+  height: 80vh;
+  margin: 24px auto;
+  border: 1px solid var(--color-outline-variant);
+  border-radius: var(--radius-lg, 12px);
+  overflow: hidden;
+  box-shadow: var(--shadow-card, 0 2px 12px rgba(0, 0, 0, 0.08));
+  background: var(--color-surface-container-lowest, #fff);
+}
+
+/* ── 좌측: 채팅 패널 ── */
+.chat section {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  border-right: 1px solid var(--color-outline-variant);
+}
+
+/* 헤더 */
+.chat section header {
+  padding: 14px 16px;
+  font-weight: 700;
+  color: var(--color-on-surface);
+  border-bottom: 1px solid var(--color-outline-variant);
+}
+
+/* 메시지 목록 (스크롤 영역) */
+.chat section ul {
+  flex: 1;
+  margin: 0;
+  padding: 16px;
+  list-style: none;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+/* 메시지 말풍선 (상대) */
+.chat section li {
+  max-width: 70%;
+  padding: 8px 12px;
+  border-radius: 14px;
+  font-size: 14px;
+  line-height: 1.4;
+  align-self: flex-start;
+  background: var(--color-surface-container, #f1f3f5);
+  color: var(--color-on-surface);
+}
+
+/* 보낸 사람 이름 (상대 메시지에만) */
+.chat section li strong {
+  display: block;
+  margin-bottom: 2px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--color-on-surface-variant);
+}
+
+/* 내 메시지 */
+.chat section li[data-mine] {
+  align-self: flex-end;
+  background: var(--color-primary, #ff6f3c);
+  color: #fff;
+}
+
+/* 입력 영역 */
+.chat section footer {
+  display: flex;
+  gap: 8px;
+  padding: 12px;
+  border-top: 1px solid var(--color-outline-variant);
+}
+
+.chat section footer input {
+  flex: 1;
+  min-width: 0;
+  padding: 10px 14px;
+  border: 1px solid var(--color-outline-variant);
+  border-radius: 999px;
+  font-size: 14px;
+  outline: none;
+  color: var(--color-on-surface);
+  background: var(--color-surface-container-lowest, #fff);
+}
+
+.chat section footer input:focus {
+  border-color: var(--color-primary, #ff6f3c);
+}
+
+.chat section footer button {
+  padding: 0 18px;
+  border: none;
+  border-radius: 999px;
+  background: var(--color-primary, #ff6f3c);
+  color: #fff;
+  font-weight: 700;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+/* ── 우측: 접속자 패널 ── */
+.chat aside {
+  width: 200px;
+  flex-shrink: 0;
+  padding: 16px;
+}
+
+.chat aside h2 {
+  margin: 0 0 12px;
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--color-on-surface);
+}
+
+.chat aside ul {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.chat aside li {
+  padding: 8px 0;
+  color: var(--color-on-surface-variant);
+  font-size: 14px;
+}
