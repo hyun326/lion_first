@@ -1,13 +1,19 @@
 'use client';
 
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { Suspense, useState } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
+import api from '@/lib/api';
+import type { ApiResponse } from '@/types';
 import AddressAutocomplete from './AddressAutocomplete';
 import MapView from './MapView';
 import styles from './page.module.css';
 
-export default function DirectTransactionPage() {
+function DirectTransactionContent() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const postId = searchParams.get('postId');
+  const price = searchParams.get('price');
+
   const [meetingLocation, setMeetingLocation] = useState('');
   const [meetingTime, setMeetingTime] = useState('');
   const [placeId, setPlaceId] = useState('');
@@ -23,16 +29,40 @@ export default function DirectTransactionPage() {
     return result;
   };
 
-  const handleConfirm = () => {
+  const handleConfirm = async () => {
     if (!meetingLocation || !meetingTime) {
       alert('약속 장소와 시간을 입력해 주세요.');
       return;
     }
+
+    // 약속 확정 시: 거래 생성(PENDING) → 확정(AGREED)으로 상품을 예약중으로 변경 요청
+    let transactionId: number | null = null;
+    if (postId && price) {
+      try {
+        const createRes = await api.post<ApiResponse<{ id: number }>>('/api/v1/transactions', {
+          postId: Number(postId),
+          type: 'DIRECT',
+          itemPrice: Number(price),
+          meetingLocation,
+          // "YYYY-MM-DD HH:MM"가 완성된 경우에만 ISO(LocalDateTime) 형식으로 전송
+          meetingTime: meetingTime.length === 16 ? meetingTime.replace(' ', 'T') : undefined,
+        });
+        transactionId = createRes.data.data.id;
+        await api.patch(`/api/v1/transactions/${transactionId}/status`, { status: 'AGREED' });
+      } catch {
+        // 백엔드 미연동/오류 시에도 데모 흐름은 계속 진행
+      }
+    }
+
     alert('직거래 약속이 확정되었습니다.');
     const params = new URLSearchParams({
+      type: 'DIRECT',
       location: meetingLocation,
       time: meetingTime,
     });
+    if (transactionId != null) {
+      params.set('id', String(transactionId));
+    }
     router.push(`/transactions/status?${params.toString()}`);
   };
 
@@ -78,5 +108,13 @@ export default function DirectTransactionPage() {
         </button>
       </div>
     </main>
+  );
+}
+
+export default function DirectTransactionPage() {
+  return (
+    <Suspense fallback={null}>
+      <DirectTransactionContent />
+    </Suspense>
   );
 }

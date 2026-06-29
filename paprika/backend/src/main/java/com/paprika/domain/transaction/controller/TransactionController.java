@@ -1,6 +1,13 @@
 package com.paprika.domain.transaction.controller;
 
+import com.paprika.domain.transaction.client.PostInfo;
+import com.paprika.domain.transaction.client.PostQueryClient;
+import com.paprika.domain.transaction.dto.TransactionCreateRequest;
+import com.paprika.domain.transaction.dto.TransactionResponse;
+import com.paprika.domain.transaction.dto.TransactionStatusRequest;
+import com.paprika.domain.transaction.service.TransactionService;
 import com.paprika.global.response.ApiResponse;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -10,41 +17,53 @@ import org.springframework.web.bind.annotation.*;
  * 담당: D - 이동준
  *
  * TODO:
- *  - POST   /api/v1/transactions                     거래 시작 (직거래/택배 선택)
- *  - GET    /api/v1/transactions/{id}                거래 상세 조회
- *  - PATCH  /api/v1/transactions/{id}/status         거래 상태 변경
  *  - PATCH  /api/v1/transactions/{id}/tracking       운송장 번호 입력 (택배)
  *  - PATCH  /api/v1/transactions/{id}/meeting        약속 장소/시간 설정 (직거래)
- *  - POST   /api/v1/transactions/{id}/complete       거래 최종 완료 처리
  */
 @RestController
 @RequestMapping("/api/v1/transactions")
 @RequiredArgsConstructor
 public class TransactionController {
 
-    // TODO: private final TransactionService transactionService;
+    private final TransactionService transactionService;
+
+    //상품 조회 통로
+    private final PostQueryClient postQueryClient;
 
     //거래생성
     @PostMapping
-    public ResponseEntity<ApiResponse<Object>> createTransaction(
-            /* @Valid @RequestBody TransactionCreateRequest request */
+    public ResponseEntity<ApiResponse<TransactionResponse>> createTransaction(
+            @Valid @RequestBody TransactionCreateRequest request
     ) {
-        // TODO: 구현
-        return ResponseEntity.ok(ApiResponse.ok(null));
+        TransactionResponse response = transactionService.createTransaction(request);
+        return ResponseEntity.ok(ApiResponse.ok("거래가 생성되었습니다.", response));
     }
 
+    // 거래 화면 표시용 상품(post) 정보 조회 (현재는 PostQueryClientStub의 더미 데이터)
+    @GetMapping("/post-info/{postId}")
+    public ResponseEntity<ApiResponse<PostInfo>> getPostInfo(@PathVariable Long postId) {
+        return ResponseEntity.ok(ApiResponse.ok(postQueryClient.getPostInfo(postId)));
+    }
+
+    //거래 상세 조회
     @GetMapping("/{id}")
-    public ResponseEntity<ApiResponse<Object>> getTransaction(@PathVariable Long id) {
-        // TODO: 구현
-        return ResponseEntity.ok(ApiResponse.ok(null));
+    public ResponseEntity<ApiResponse<TransactionResponse>> getTransaction(@PathVariable Long id) {
+        return ResponseEntity.ok(ApiResponse.ok(transactionService.getTransaction(id)));
     }
 
+    // 거래 상태 변경: AGREED(확정) -> 상품 예약중 요청 / CANCELLED(취소) -> 상품 판매중 복구 요청
+    // (POST 테이블 실제 변경·홈페이지 표시는 POST 담당. 여기서는 변경을 "요청"만 한다)
     @PatchMapping("/{id}/status")
     public ResponseEntity<ApiResponse<Void>> updateStatus(
-            @PathVariable Long id
-            /* @RequestBody TransactionStatusRequest request */
+            @PathVariable Long id,
+            @Valid @RequestBody TransactionStatusRequest request
     ) {
-        // TODO: 구현
+        switch (request.getStatus()) {
+            case AGREED -> transactionService.agreeTransaction(id);
+            case CANCELLED -> transactionService.cancelTransaction(id);
+            default -> throw new IllegalArgumentException(
+                    "지원하지 않는 상태 변경입니다. status=" + request.getStatus());
+        }
         return ResponseEntity.ok(ApiResponse.ok("거래 상태가 변경되었습니다.", null));
     }
 
@@ -57,9 +76,10 @@ public class TransactionController {
         return ResponseEntity.ok(ApiResponse.ok("운송장 번호가 등록되었습니다.", null));
     }
 
+    // 거래 최종 완료: 거래 COMPLETED -> 상품 완료(COMPLETED)로 변경 요청
     @PostMapping("/{id}/complete")
     public ResponseEntity<ApiResponse<Void>> completeTransaction(@PathVariable Long id) {
-        // TODO: 거래 완료 처리 + 리뷰 작성 유도 (E - 장인호와 연동)
+        transactionService.completeTransaction(id);
         return ResponseEntity.ok(ApiResponse.ok("거래가 완료되었습니다.", null));
     }
 }
