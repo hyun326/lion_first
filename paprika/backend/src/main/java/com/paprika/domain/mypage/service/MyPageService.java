@@ -47,8 +47,8 @@ public class MyPageService {
      * 내 프로필 조회
      * GET /api/v1/users/me
      */
-    public ProfileResponse getMyProfile(String email) {
-        User user = userRepository.findByEmail(email)
+    public ProfileResponse getMyProfile(Long userId) {
+        User user = userRepository.findById(userId)
                 .orElseThrow(() -> new PaprikaException(ErrorCode.USER_NOT_FOUND));
         return ProfileResponse.from(user);
     }
@@ -58,8 +58,8 @@ public class MyPageService {
      * PATCH /api/v1/users/me
      */
     @Transactional
-    public ProfileResponse updateMyProfile(String email, ProfileUpdateRequest request) {
-        User user = userRepository.findByEmail(email)
+    public ProfileResponse updateMyProfile(Long userId, ProfileUpdateRequest request) {
+        User user = userRepository.findById(userId)
                 .orElseThrow(() -> new PaprikaException(ErrorCode.USER_NOT_FOUND));
 
         if (request.getNickname() != null) {
@@ -79,8 +79,8 @@ public class MyPageService {
      * 닉네임 중복 확인
      * GET /api/v1/users/me/check-nickname
      */
-    public boolean isNicknameDuplicate(String nickname, String currentEmail) {
-        User currentUser = userRepository.findByEmail(currentEmail)
+    public boolean isNicknameDuplicate(String nickname, Long currentUserId) {
+        User currentUser = userRepository.findById(currentUserId)
                 .orElseThrow(() -> new PaprikaException(ErrorCode.USER_NOT_FOUND));
         if (nickname.equals(currentUser.getNickname())) return false;
         return userRepository.existsByNickname(nickname);
@@ -97,10 +97,9 @@ public class MyPageService {
      *
      * TODO: 거래 취소 후 상품 상태 복구 - D(이동준), B(백성민)과 협의 필요
      */
-    public List<TransactionSummaryResponse> getMyTransactions(String email, String tab) {
-        User user = userRepository.findByEmail(email)
+    public List<TransactionSummaryResponse> getMyTransactions(Long userId, String tab) {
+        User user = userRepository.findById(userId)
                 .orElseThrow(() -> new PaprikaException(ErrorCode.USER_NOT_FOUND));
-        Long userId = user.getId();
 
         return switch (tab) {
             case "buy" -> transactionRepository

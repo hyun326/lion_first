@@ -79,5 +79,9 @@ public class User {
     public void updateProfileImage(String profileImageUrl) {
         this.profileImageUrl = profileImageUrl;
     }
-   
+    //매너온도(장인호)
+    @Column(name = "trust_score")
+    @Builder.Default
+    private Double trustScore = 30.0;
+    
 }
