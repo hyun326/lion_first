@@ -6,7 +6,7 @@ on:
       - main
 
 permissions:
-  contents: read
+  contents: write      # 매니페스트 태그 갱신 커밋을 push 하려면 write 필요
   packages: write
 
 jobs:
@@ -51,3 +51,16 @@ jobs:
         run: |
           docker push ghcr.io/hyun326/lion_first-frontend:${{ github.sha }}
           docker push ghcr.io/hyun326/lion_first-frontend:latest
+
+      # 빌드한 이미지의 SHA 태그를 매니페스트에 써넣고 git에 커밋·push
+      # → ArgoCD가 매니페스트 변경을 감지해 자동 배포
+      # [skip ci] 로 이 커밋이 워크플로를 다시 트리거하지 않게 함(무한루프 방지)
+      - name: Update manifest image tags
+        run: |
+          sed -i "s|lion_first-backend:.*|lion_first-backend:${{ github.sha }}|" k8s/paprika-backend.yaml
+          sed -i "s|lion_first-frontend:.*|lion_first-frontend:${{ github.sha }}|" k8s/paprika-frontend.yaml
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add k8s/paprika-backend.yaml k8s/paprika-frontend.yaml
+          git commit -m "chore: bump image tag to ${{ github.sha }} [skip ci]" || echo "no changes to commit"
+          git push origin HEAD:main

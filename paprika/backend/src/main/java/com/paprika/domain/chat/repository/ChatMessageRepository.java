@@ -11,6 +11,4 @@ import org.springframework.data.jpa.repository.JpaRepository;
 public interface ChatMessageRepository extends JpaRepository<ChatMessage, Long> {
 
     Page<ChatMessage> findByChatRoomIdOrderByCreatedAtDesc(Long chatRoomId, Pageable pageable);
-
-    long countByChatRoomIdAndIsReadFalseAndSenderIdNot(Long chatRoomId, Long currentUserId);
 }

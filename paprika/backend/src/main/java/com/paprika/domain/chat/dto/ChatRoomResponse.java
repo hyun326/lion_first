@@ -15,7 +15,7 @@ import java.time.LocalDateTime;
 public class ChatRoomResponse {
 
     private Long id;
-    private Long productId;
+    private Long postId;
     private Long buyerId;
     private Long sellerId;
     private String lastMessage;       // TODO: 마지막 메시지 내용
@@ -26,7 +26,7 @@ public class ChatRoomResponse {
     public static ChatRoomResponse from(ChatRoom chatRoom) {
         return ChatRoomResponse.builder()
             .id(chatRoom.getId())
-            .productId(chatRoom.getProductId())
+            .postId(chatRoom.getPostId())
             .buyerId(chatRoom.getBuyerId())
             .sellerId(chatRoom.getSellerId())
             .createdAt(chatRoom.getCreatedAt())
