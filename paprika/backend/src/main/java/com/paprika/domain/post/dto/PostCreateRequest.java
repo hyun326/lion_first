@@ -1,4 +1,4 @@
-package com.paprika.domain.product.dto;
+package com.paprika.domain.post.dto;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -13,7 +13,7 @@ import java.util.List;
  * 담당: B - 백성민
  */
 @Getter
-public class ProductCreateRequest {
+public class PostCreateRequest {
 
     @NotBlank
     private String title;
