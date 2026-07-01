@@ -27,7 +27,8 @@ public class ChatRoom {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private Long productId;  // TODO: Product와 @ManyToOne
+    @Column(name = "post_id", nullable = false)
+    private Long postId;  // TODO: Product와 @ManyToOne (DB 컬럼은 post_id로 통일됨)
 
     private Long buyerId;    // TODO: User와 @ManyToOne
 
@@ -35,4 +36,13 @@ public class ChatRoom {
 
     @CreatedDate
     private LocalDateTime createdAt;
+
+    /** 새 채팅방 생성용 정적 팩토리 (상품 + 구매자 + 판매자) */
+    public static ChatRoom create(Long postId, Long buyerId, Long sellerId) {
+        ChatRoom room = new ChatRoom();
+        room.postId = postId;
+        room.buyerId = buyerId;
+        room.sellerId = sellerId;
+        return room;
+    }
 }

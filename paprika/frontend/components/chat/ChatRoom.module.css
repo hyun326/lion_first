@@ -1,0 +1,84 @@
+/* 클래스는 .room 하나만. 나머지는 구조(태그)로 선택 */
+
+.room {
+  margin-top: 8px;
+  display: flex;
+  flex-direction: column;
+  border: 1px solid var(--color-outline-variant);
+  border-radius: var(--radius-lg, 12px);
+  overflow: hidden;
+  background: var(--color-surface-container-lowest, #fff);
+}
+
+/* 메시지 영역 (스크롤) */
+.room > div {
+  height: 240px;
+  overflow-y: auto;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+/* 말풍선 — 상대 메시지 (왼쪽, 따뜻한 라이트그레이) */
+.room > div p {
+  align-self: flex-start;
+  max-width: 76%;
+  margin: 0;
+  padding: 9px 13px;
+  border-radius: 16px;
+  border-bottom-left-radius: 4px;
+  background: #eef0f2;
+  color: #2b2b2e;
+  font-size: 14px;
+  line-height: 1.45;
+  word-break: break-word;
+  box-shadow: 0 1px 1.5px rgba(0, 0, 0, 0.05);
+}
+
+/* 내 메시지 (오른쪽, 부드러운 코랄) */
+.room > div p[data-mine] {
+  align-self: flex-end;
+  border-bottom-left-radius: 16px;
+  border-bottom-right-radius: 4px;
+  background: #33343a;
+  color: #ffffff;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.12);
+}
+
+/* 빈 상태 */
+.room > div p[data-empty] {
+  align-self: center;
+  margin: auto;
+  background: none;
+  box-shadow: none;
+  color: var(--color-on-surface-variant);
+  font-size: 13px;
+}
+
+/* 입력 바 */
+.room form {
+  display: flex;
+  gap: 8px;
+  padding: 8px;
+  border-top: 1px solid var(--color-outline-variant);
+}
+
+.room input {
+  flex: 1;
+  padding: 8px 12px;
+  border: 1px solid var(--color-outline-variant);
+  border-radius: 9999px;
+  font-size: 14px;
+  outline: none;
+}
+
+.room button {
+  padding: 8px 16px;
+  border: none;
+  border-radius: 9999px;
+  background: var(--color-primary);
+  color: var(--color-on-primary);
+  font-weight: 600;
+  cursor: pointer;
+}

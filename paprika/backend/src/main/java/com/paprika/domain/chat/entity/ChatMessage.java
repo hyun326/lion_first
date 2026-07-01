@@ -22,17 +22,24 @@ public class ChatMessage {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false)
+    @Column(name = "room_id", nullable = false)
     private Long chatRoomId; // TODO: ChatRoom과 @ManyToOne
 
     @Column(nullable = false)
     private Long senderId;   // TODO: User와 @ManyToOne
 
-    @Column(columnDefinition = "TEXT", nullable = false)
+    @Column(columnDefinition = "TEXT")
     private String content;
-
-    private boolean isRead = false;
 
     @CreatedDate
     private LocalDateTime createdAt;
+
+    /** 새 메시지 생성용 정적 팩토리 (방 + 보낸사람 + 내용) */
+    public static ChatMessage create(Long chatRoomId, Long senderId, String content) {
+        ChatMessage message = new ChatMessage();
+        message.chatRoomId = chatRoomId;
+        message.senderId = senderId;
+        message.content = content;
+        return message;
+    }
 }

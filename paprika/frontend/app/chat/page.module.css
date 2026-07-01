@@ -1,0 +1,51 @@
+/* 클래스는 .chatList 하나만. 나머지는 구조(태그)로 다단계 선택 */
+
+.chatList {
+  max-width: 640px;
+  margin: 24px auto;
+  padding: 0 16px;
+}
+
+.chatList h1 {
+  margin: 16px 0;
+  font-size: 22px;
+  font-weight: 800;
+  color: var(--color-on-surface);
+}
+
+.chatList ul {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+/* 방 한 칸 (클릭 가능한 카드) */
+.chatList li a {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 16px;
+  border: 1px solid var(--color-outline-variant);
+  border-radius: var(--radius-lg, 12px);
+  background: var(--color-surface-container-lowest, #fff);
+  text-decoration: none;
+  transition: background 0.15s ease;
+}
+
+.chatList li a:hover {
+  background: var(--color-surface-container, #f1f3f5);
+}
+
+.chatList li strong {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--color-on-surface);
+}
+
+.chatList li span {
+  font-size: 13px;
+  color: var(--color-on-surface-variant);
+}

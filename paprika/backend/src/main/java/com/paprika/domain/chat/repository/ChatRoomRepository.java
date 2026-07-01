@@ -13,5 +13,11 @@ public interface ChatRoomRepository extends JpaRepository<ChatRoom, Long> {
 
     List<ChatRoom> findByBuyerIdOrSellerIdOrderByIdDesc(Long buyerId, Long sellerId);
 
-    Optional<ChatRoom> findByProductIdAndBuyerIdAndSellerId(Long productId, Long buyerId, Long sellerId);
+    Optional<ChatRoom> findByPostIdAndBuyerIdAndSellerId(Long postId, Long buyerId, Long sellerId);
+
+    // 구매자 입장: 상품당 구매자 1방 (DB 유니크 제약 uq_chat_room = (post_id, buyer_id)와 일치)
+    Optional<ChatRoom> findByPostIdAndBuyerId(Long postId, Long buyerId);
+
+    // 판매자 입장: 이 상품에 온 모든 문의 방 (구매자별 0~N개)
+    List<ChatRoom> findByPostIdAndSellerId(Long postId, Long sellerId);
 }
