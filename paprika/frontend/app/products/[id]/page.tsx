@@ -92,10 +92,7 @@ export default async function ProductDetailPage({
 							관심 등록
 						</button>
 						<ChatButton postId={product.id} />
-						<TradeButton
-							postId={params.id}
-							buttonClassName={styles.primaryButton}
-						/>
+						<TradeButton postId={product.id} />
 					</div>
 				</div>
 			</section>
