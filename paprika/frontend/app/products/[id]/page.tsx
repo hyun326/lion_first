@@ -12,9 +12,9 @@
  *  - '관심' 버튼 → 찜 추가/제거 (E - 장인호)
  */
 import type { Metadata } from 'next';
-import TradeButton from '@/components/transactions/TradeButton';
 import type { Product } from '@/types';
 import styles from './page.module.css';
+import ChatButton from "@/components/chat/ChatButton";
 
 export const metadata: Metadata = {
   title: 'Paprika - 상품 상세',
@@ -99,10 +99,10 @@ export default function ProductDetailPage({
             <button className={styles.secondaryButton} type="button">
               관심 등록
             </button>
-            <button className={styles.secondaryButton} type="button">
-              채팅하기
+            <ChatButton postId={1} />
+            <button className={styles.primaryButton} type="button">
+              거래하기
             </button>
-            <TradeButton postId={params.id} buttonClassName={styles.primaryButton} />
           </div>
         </div>
       </section>
