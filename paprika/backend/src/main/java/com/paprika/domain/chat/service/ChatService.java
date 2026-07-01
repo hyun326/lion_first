@@ -2,10 +2,10 @@ package com.paprika.domain.chat.service;
 
 import com.paprika.domain.chat.entity.ChatMessage;
 import com.paprika.domain.chat.entity.ChatRoom;
-import com.paprika.domain.chat.entity.ChatPost;
 import com.paprika.domain.chat.repository.ChatMessageRepository;
 import com.paprika.domain.chat.repository.ChatRoomRepository;
 import com.paprika.domain.chat.repository.ChatPostRepository;
+import com.paprika.domain.post.entity.Post;
 import com.paprika.global.exception.ErrorCode;
 import com.paprika.global.exception.PaprikaException;
 import lombok.RequiredArgsConstructor;
@@ -47,7 +47,7 @@ public class ChatService {
     @Transactional
     public List<ChatRoom> enterChatRooms(Long postId, Long currentUserId) {
         Long sellerId = chatPostRepository.findById(postId)
-                .map(ChatPost::getSellerId)
+                .map(Post::getUserId)
                 .orElseThrow(() -> new PaprikaException(ErrorCode.POST_NOT_FOUND));
         if (currentUserId.equals(sellerId)) {
             return chatRoomRepository.findByPostIdAndSellerId(postId, currentUserId);

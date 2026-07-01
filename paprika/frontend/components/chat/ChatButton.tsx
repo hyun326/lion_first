@@ -24,13 +24,13 @@ export default function ChatButton({ postId }: ChatButtonProps) {
 
   const isOpen = roomId !== null || rooms !== null;
 
+  // 방/목록 전체 닫기 (모달 닫기)
+  const closeAll = () => {
+    setRoomId(null);
+    setRooms(null);
+  };
+
   const handleClick = async () => {
-    if (isOpen) {
-      // 다시 누르면 전체 닫기
-      setRoomId(null);
-      setRooms(null);
-      return;
-    }
     try {
       // enter → 항상 방 배열 반환 (구매자는 1개 보장, 판매자는 0~N개)
       const res = await api.post('/api/v1/chat/rooms/enter', { postId });
@@ -60,25 +60,41 @@ export default function ChatButton({ postId }: ChatButtonProps) {
   };
 
   return (
-    <div className={styles.chatButton}>
-      <button type="button" onClick={handleClick}>
-        {isOpen ? '채팅 닫기' : '채팅하기'}
+    <>
+      <button type="button" className={styles.trigger} onClick={handleClick}>
+        채팅하기
       </button>
 
-      {/* 방 열림. 목록에서 들어온 경우 '목록으로' 뒤로가기 제공 */}
-      {roomId !== null && (
-        <>
-          {rooms && (
-            <button type="button" onClick={() => setRoomId(null)}>
-              ← 목록으로
-            </button>
-          )}
-          <ChatRoom roomId={roomId} />
-        </>
-      )}
+      {/* 배경 블러 + 화면 중앙 모달. 거래하기 팝업과 동일한 방식 */}
+      {isOpen && (
+        <div className={styles.backdrop} onClick={closeAll} role="presentation">
+          <div
+            className={styles.dialog}
+            onClick={(event) => event.stopPropagation()}
+            role="dialog"
+            aria-modal="true"
+            aria-label="채팅"
+          >
+            <div className={styles.dialogHeader}>
+              {/* 목록에서 들어온 경우 '목록으로' 뒤로가기 제공 */}
+              {roomId !== null && rooms && (
+                <button type="button" className={styles.backButton} onClick={() => setRoomId(null)}>
+                  ← 목록으로
+                </button>
+              )}
+              <button type="button" className={styles.closeButton} onClick={closeAll}>
+                닫기
+              </button>
+            </div>
 
-      {/* 방 N개 → 목록 표시 */}
-      {roomId === null && rooms && <ChatRoomList rooms={rooms} onSelect={setRoomId} />}
-    </div>
+            {/* 방 열림 */}
+            {roomId !== null && <ChatRoom roomId={roomId} />}
+
+            {/* 방 N개 → 목록 표시 */}
+            {roomId === null && rooms && <ChatRoomList rooms={rooms} onSelect={setRoomId} />}
+          </div>
+        </div>
+      )}
+    </>
   );
 }

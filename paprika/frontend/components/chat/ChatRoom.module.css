@@ -12,7 +12,7 @@
 
 /* 메시지 영역 (스크롤) */
 .room > div {
-  height: 240px;
+  height: 440px;
   overflow-y: auto;
   padding: 12px;
   display: flex;

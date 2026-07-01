@@ -12,6 +12,7 @@ import type { CSSProperties } from 'react';
 import Link from 'next/link';
 import styles from './page.module.css';
 import ChatButton from '@/components/chat/ChatButton';
+import TradeButton from "@/components/transactions/TradeButton";
 
 const rooms = [
   {
@@ -45,6 +46,8 @@ export default function ChatListPage() {
   return (
     <div className={styles.chatList}>
 
+
+        <TradeButton postId={5} />
 
       {/* ── 테스트 하니스 (확인 후 제거) ─────────────────────────────── */}
       <div
