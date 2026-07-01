@@ -12,7 +12,6 @@ import type { CSSProperties } from 'react';
 import Link from 'next/link';
 import styles from './page.module.css';
 import ChatButton from '@/components/chat/ChatButton';
-import TransactionButton from "@/app/transactions/TransactionButton";
 
 const rooms = [
   {
@@ -46,8 +45,6 @@ export default function ChatListPage() {
   return (
     <div className={styles.chatList}>
 
-      <h1>채팅</h1>
-      <TransactionButton status={"SELLING"}></TransactionButton>
 
       {/* ── 테스트 하니스 (확인 후 제거) ─────────────────────────────── */}
       <div
