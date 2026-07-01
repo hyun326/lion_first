@@ -5,8 +5,8 @@ import TransactionSetup from '@/components/transactions/TransactionSetup';
 import styles from './TradeButton.module.css';
 
 interface TradeButtonProps {
-  postId: string;
-  buttonClassName: string;
+  postId: number; // 게시글 id (백엔드 posts.id). ChatButton과 동일하게 number로 받는다
+  buttonClassName?: string;
 }
 
 export default function TradeButton({ postId, buttonClassName }: TradeButtonProps) {
@@ -31,7 +31,7 @@ export default function TradeButton({ postId, buttonClassName }: TradeButtonProp
               닫기
             </button>
             <Suspense fallback={<p className={styles.loading}>거래 정보를 불러오는 중...</p>}>
-              <TransactionSetup postId={postId} />
+              <TransactionSetup postId={String(postId)} />
             </Suspense>
           </div>
         </div>
